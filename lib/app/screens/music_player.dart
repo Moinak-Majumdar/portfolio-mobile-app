@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:moinak05_web_dev_dashboard/app/widgets/clip_background.dart';
+import 'package:moinak05_web_dev_dashboard/app/widgets/background.dart';
 import 'package:moinak05_web_dev_dashboard/provider/music.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -51,7 +51,12 @@ class _MusicPlayerState extends ConsumerState<MusicPlayer> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          const ClipBackground(),
+          const Background(
+            shape: BackgroundShape.wave,
+            style: LinearGradient(
+              colors: [Colors.black, Colors.black],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(

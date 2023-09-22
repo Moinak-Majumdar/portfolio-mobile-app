@@ -7,12 +7,10 @@ import 'package:moinak05_web_dev_dashboard/models/storage.dart';
 
 const boxName = 'userImage';
 
-final initial = StorageSchema(dir: '', imgName: '', image: File(''));
+class ProfileImgNotifier extends StateNotifier<StorageSchema?> {
+  ProfileImgNotifier() : super(null);
 
-class ProfileImgNotifier extends StateNotifier<StorageSchema> {
-  ProfileImgNotifier() : super(initial);
-
-  Future<StorageSchema> getInitial() async {
+  Future<StorageSchema?> getInitial() async {
     final box = await Hive.openBox<HiveStorage>(boxName);
     final item = box.get('profile/_/default');
     await box.close();
@@ -49,6 +47,6 @@ class ProfileImgNotifier extends StateNotifier<StorageSchema> {
 }
 
 final profileImgProvider =
-    StateNotifierProvider<ProfileImgNotifier, StorageSchema>(
+    StateNotifierProvider<ProfileImgNotifier, StorageSchema?>(
   (ref) => ProfileImgNotifier(),
 );

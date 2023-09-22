@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -20,6 +21,7 @@ class PhotographyUploader extends ConsumerStatefulWidget {
 }
 
 class _PhotographyUploaderState extends ConsumerState<PhotographyUploader> {
+  late void Function(String val) _smackMsg;
   File? _selectedImage;
   bool _isLoading = false;
   bool _isSuccess = false;
@@ -40,59 +42,26 @@ class _PhotographyUploaderState extends ConsumerState<PhotographyUploader> {
     });
   }
 
-  void handelUpload() async {
-    if (_selectedImage == null) {
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _isSuccess = false;
-    });
-
-    final imgName = basename(_selectedImage!.path);
-
-    final storageRef =
-        FirebaseStorage.instance.ref().child('photography').child(imgName);
-    await storageRef.putFile(_selectedImage!);
-
-    final storageUrl = await storageRef.getDownloadURL();
-
-    final url = Uri.https(dotenv.env['SERVER']!, 'addPhotography');
-    final body = {
-      "apiKey": dotenv.env['DB_KEY'],
-      "url": storageUrl,
-      "name": imgName,
-    };
-
-    final response = await http.post(url,
-        body: jsonEncode(body), headers: {'Content-Type': 'application/json'});
-
-    if (response.statusCode == 200) {
-      ref.read(photographyProvider.notifier).fetch();
-      await ref.read(storageProvider.notifier).explicitAddItem(
-            imgName: imgName,
-            dir: 'photography',
-            image: _selectedImage!,
-            url: storageUrl,
-          );
-      setState(() {
-        _isLoading = false;
-        _isSuccess = true;
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
-        _isLoading = false;
-      });
-      throw Exception('Api Failed...');
-    }
-  }
-
   @override
   Widget build(context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+
+    _smackMsg = (String smack) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.black,
+          padding: const EdgeInsets.all(16),
+          content: Text(
+            smack,
+            style: textTheme.titleMedium!.copyWith(
+              color: Colors.white,
+            ),
+          ),
+        ),
+      );
+    };
 
     return AlertDialog(
       title: Text(
@@ -173,7 +142,7 @@ class _PhotographyUploaderState extends ConsumerState<PhotographyUploader> {
       ),
       actions: [
         if (_isLoading) const CircularProgressIndicator(),
-        if (!_isLoading && !_isSuccess)
+        if ((!_isLoading && !_isSuccess) || _selectedImage == null)
           OutlinedButton.icon(
             onPressed: handelUpload,
             icon: const Icon(Icons.upload),
@@ -205,5 +174,59 @@ class _PhotographyUploaderState extends ConsumerState<PhotographyUploader> {
           ),
       ],
     );
+  }
+
+  void handelUpload() async {
+    if (_selectedImage == null) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _isSuccess = false;
+    });
+
+    final imgName = basename(_selectedImage!.path);
+
+    final storageRef =
+        FirebaseStorage.instance.ref().child('photography').child(imgName);
+    await storageRef.putFile(_selectedImage!);
+
+    final storageUrl = await storageRef.getDownloadURL();
+
+    final url = Uri.https(dotenv.env['SERVER']!, 'addPhotography');
+    final body = {
+      "apiKey": dotenv.env['DB_KEY'],
+      "url": storageUrl,
+      "name": imgName,
+    };
+
+    final response = await http.post(url,
+        body: jsonEncode(body), headers: {'Content-Type': 'application/json'});
+
+    if (response.statusCode == 200) {
+      ref.read(photographyProvider.notifier).fetch();
+      await ref.read(storageProvider.notifier).explicitAddItem(
+            imgName: imgName,
+            dir: 'photography',
+            image: _selectedImage!,
+            url: storageUrl,
+          );
+      _smackMsg(
+          '$imgName is uploaded successfully, Upload a new image or close.');
+      setState(() {
+        _isLoading = false;
+        _isSuccess = true;
+        _selectedImage = null;
+      });
+    } else {
+      _smackMsg('Failed to delete $imgName');
+      setState(() {
+        _isLoading = false;
+        _isLoading = false;
+        _selectedImage = null;
+      });
+      throw Exception('Api Failed...');
+    }
   }
 }

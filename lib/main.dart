@@ -4,17 +4,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:moinak05_web_dev_dashboard/app/auth.dart';
-import 'package:moinak05_web_dev_dashboard/firebase_options.dart';
+import 'package:moinak05_web_dev_dashboard/app/auth/online_auth.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:moinak05_web_dev_dashboard/hive_add_doc.dart';
 import 'package:moinak05_web_dev_dashboard/hive_html.dart';
 import 'package:moinak05_web_dev_dashboard/hive_music.dart';
 import 'package:moinak05_web_dev_dashboard/hive_storage.dart';
 import 'package:moinak05_web_dev_dashboard/provider/music.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await dotenv.load(fileName: '.env');
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Hive.initFlutter();
@@ -22,7 +24,7 @@ void main() async {
   Hive.registerAdapter(HiveHtmlAdapter());
   Hive.registerAdapter(HiveStorageAdapter());
   Hive.registerAdapter(HiveMusicAdapter());
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -51,7 +53,7 @@ class MyApp extends ConsumerWidget {
         ),
         textTheme: GoogleFonts.ubuntuTextTheme(),
       ),
-      home: const Auth(),
+      home: const OnlineAuth(),
     );
   }
 }

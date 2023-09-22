@@ -13,12 +13,12 @@ dependencies:
     
 
   cupertino_icons: ^1.0.2
-  firebase_core: ^2.15.1
-  http: ^1.1.0
   google_fonts: ^5.1.0
+  firebase_core: ^2.16.0
   firebase_auth: ^4.9.0
   firebase_storage: ^11.2.6
   flutter_dotenv: ^5.1.0
+  http: ^1.1.0
   flutter_riverpod: ^2.3.10
   image_picker: ^1.0.4
   path: ^1.8.3
@@ -38,6 +38,7 @@ dependencies:
   audio_video_progress_bar: ^2.0.0
   rxdart: ^0.27.7
   just_audio_background: ^0.0.1-beta.10
+  local_auth: ^2.1.7
 
 dev_dependencies:
   flutter_test:

@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key, required this.splash});
+class AuthError extends StatelessWidget {
+  const AuthError({super.key, required this.splash});
 
   final String splash;
 
   @override
   Widget build(context) {
     return Scaffold(
+      appBar: AppBar(
+        foregroundColor: Colors.black,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+      ),
       body: Container(
         height: double.infinity,
         width: double.infinity,
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -35,8 +40,9 @@ class SplashScreen extends StatelessWidget {
               const SizedBox(height: 48),
               Text(
                 splash,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: Theme.of(context).textTheme.headlineSmall,
                 softWrap: true,
+                textAlign: TextAlign.center,
               )
             ],
           ),
