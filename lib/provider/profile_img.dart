@@ -4,16 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:moinak05_web_dev_dashboard/hive_storage.dart';
 import 'package:moinak05_web_dev_dashboard/models/storage.dart';
+import 'package:path_provider/path_provider.dart';
 
 const boxName = 'userImage';
 
 class ProfileImgNotifier extends StateNotifier<StorageSchema?> {
   ProfileImgNotifier() : super(null);
 
-  Future<StorageSchema?> getInitial() async {
+  Future<StorageSchema?> isProfileImgAvailable() async {
     final box = await Hive.openBox<HiveStorage>(boxName);
     final item = box.get('profile/_/default');
-    await box.close();
+
     if (item != null) {
       state = StorageSchema(
         imgName: item.imgName,
@@ -25,24 +26,36 @@ class ProfileImgNotifier extends StateNotifier<StorageSchema?> {
     throw Exception('profile not found');
   }
 
-  Future<void> addProfileImg({
-    required String imgName,
-    required String dir,
-    required String localPath,
-    required String url,
-  }) async {
-    state = StorageSchema(dir: dir, image: File(localPath), imgName: imgName);
+  Future<void> addProfileImg({required String localPath}) async {
+    state = StorageSchema(
+      dir: 'profile',
+      image: File(localPath),
+      imgName: 'default',
+    );
     final box = await Hive.openBox<HiveStorage>(boxName);
     await box.put(
-      '$dir/_/$imgName',
+      'profile/_/default',
       HiveStorage(
-        imgName: imgName,
-        dir: dir,
+        imgName: 'default',
+        dir: 'profile',
         localPath: localPath,
-        url: url,
+        url: 'not needed',
       ),
     );
     await box.close();
+  }
+
+  Future<void> removeProfileImg() async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final workDir = Directory('${appDir.path}/userData');
+
+    if (await workDir.exists()) {
+      workDir.deleteSync(recursive: true);
+      final box = await Hive.openBox<HiveStorage>(boxName);
+      await box.delete('profile/_/default');
+      await box.close();
+    }
+    state = null;
   }
 }
 

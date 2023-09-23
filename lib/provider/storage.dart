@@ -6,20 +6,30 @@ import 'package:moinak05_web_dev_dashboard/hive_storage.dart';
 import 'package:moinak05_web_dev_dashboard/models/storage.dart';
 import 'package:path_provider/path_provider.dart';
 
+enum StorageOptions {
+  online,
+  offline,
+}
+
 const boxName = 'storage';
 
-class StorageNotifier extends StateNotifier<bool> {
-  StorageNotifier() : super(true);
+class StorageNotifier extends StateNotifier<StorageOptions> {
+  StorageNotifier() : super(StorageOptions.offline);
 
-  void toggleStorage(bool isStorage) {
-    state = isStorage;
+  void storageSetting(StorageOptions option) {
+    state = option;
   }
 
-  Future<bool> isDataAtStorage() async {
+  Future<bool> isDataAvailableLocally() async {
     final box = await Hive.openBox<HiveStorage>(boxName);
     final records = box.values.toList();
 
-    return records.isEmpty ? false : true;
+    if (records.isNotEmpty) {
+      return true;
+    } else {
+      state = StorageOptions.online;
+      return false;
+    }
   }
 
 //hl1 used at when user download images from settings.
@@ -42,8 +52,8 @@ class StorageNotifier extends StateNotifier<bool> {
     await box.close();
   }
 
-//hl2 used at when user upload new image (photography / cloud image).
-  Future<void> explicitAddItem({
+//hl4 used at when user upload new image (photography / cloud image).
+  Future<void> explicitlyAddItem({
     required String imgName,
     required String dir,
     required File image,
@@ -68,6 +78,25 @@ class StorageNotifier extends StateNotifier<bool> {
       localPath: copy.path,
       url: url,
     );
+  }
+
+//hl6 used at when user removed a image (photography / cloud image)
+  Future<void> explicitlyRemoveItem({
+    required String imgName,
+    required String dir,
+  }) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final workDir = Directory('${appDir.path}/storage/$dir');
+    if (await workDir.exists()) {
+      final file = File('${workDir.path}/$imgName');
+
+      await file.delete();
+      final box = await Hive.openBox<HiveStorage>(boxName);
+      await box.delete('$dir/_/$imgName');
+      await box.close();
+    }
+
+    return;
   }
 
 // hl3 find local image by name and associate doc / photography.
@@ -113,7 +142,7 @@ class StorageNotifier extends StateNotifier<bool> {
   }
 }
 
-final storageProvider = StateNotifierProvider<StorageNotifier, bool>(
+final storageProvider = StateNotifierProvider<StorageNotifier, StorageOptions>(
   (ref) => StorageNotifier(),
 );
 

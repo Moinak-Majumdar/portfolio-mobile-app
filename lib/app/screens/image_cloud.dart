@@ -93,17 +93,29 @@ class _ImageCloudState extends ConsumerState<ImageCloud> {
               );
             } else {
               final images = _cloudData!.images[_selectedProject];
-
-              return ListView.builder(
-                itemCount: images!.length,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                itemBuilder: (ctx, index) {
-                  return CloudImgCard(details: images[index]);
-                },
-              );
+              if (images != null) {
+                return ListView.builder(
+                  itemCount: images.length,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  itemBuilder: (ctx, index) {
+                    return CloudImgCard(details: images[index]);
+                  },
+                );
+              } else {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      '$_selectedProject has no images to show, Select another option.',
+                      style: GoogleFonts.pacifico(fontSize: 22),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }
             }
           }
           return const Loader(splash: 'Getting cloud ..');

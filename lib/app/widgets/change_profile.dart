@@ -17,7 +17,19 @@ class ChangeProfile extends ConsumerStatefulWidget {
 class _ChangeProfileState extends ConsumerState<ChangeProfile> {
   File? _selectedImage;
   bool _isLoading = false;
-  bool _isSuccess = false;
+  late void Function(String val, {bool isClosed}) _smackMsg;
+
+  @override
+  void initState() {
+    ref.read(profileImgProvider.notifier).isProfileImgAvailable().then((value) {
+      if (value != null) {
+        setState(() {
+          _selectedImage = value.image;
+        });
+      }
+    });
+    super.initState();
+  }
 
   void _pickPicture() async {
     final ip = ImagePicker();
@@ -42,7 +54,6 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
 
     setState(() {
       _isLoading = true;
-      _isSuccess = false;
     });
 
     final imgName = basename(_selectedImage!.path);
@@ -60,13 +71,12 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
     final copy = await _selectedImage!.copy('$workDirPath/$imgName');
 
     await ref.read(profileImgProvider.notifier).addProfileImg(
-        imgName: 'default',
-        dir: 'profile',
-        localPath: copy.path,
-        url: 'not needed');
+          localPath: copy.path,
+        );
+
+    _smackMsg('Profile image is changed.', isClosed: true);
     setState(() {
       _isLoading = false;
-      _isSuccess = true;
     });
   }
 
@@ -75,10 +85,27 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
+    _smackMsg = (String smack, {bool isClosed = false}) {
+      if (isClosed) Navigator.pop(context);
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.black,
+          padding: const EdgeInsets.all(16),
+          content: Text(
+            smack,
+            style: textTheme.titleLarge!.copyWith(
+              color: Colors.white,
+            ),
+          ),
+        ),
+      );
+    };
+
     return AlertDialog(
       title: Text(
         _selectedImage == null
-            ? 'Upload Display Image'
+            ? 'Change profile image'
             : basename(_selectedImage!.path),
         style: textTheme.titleLarge,
       ),
@@ -141,7 +168,7 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
                               color: colorScheme.inversePrimary,
                             ),
                             label: const Text(
-                              'choose again',
+                              'change',
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
@@ -153,35 +180,38 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
               ),
       ),
       actions: [
-        if (_isLoading) const CircularProgressIndicator(),
-        if (!_isLoading && !_isSuccess)
-          OutlinedButton.icon(
-            onPressed: handelUpload,
-            icon: const Icon(Icons.upload),
-            label: Text(
-              'upload',
-              style: TextStyle(color: colorScheme.primaryContainer),
-            ),
-            style: ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll(colorScheme.primary),
-              iconColor: MaterialStatePropertyAll(colorScheme.primaryContainer),
-              side: const MaterialStatePropertyAll(BorderSide.none),
-            ),
-          ),
-        if (_isSuccess)
-          OutlinedButton.icon(
+        if (_selectedImage != null)
+          IconButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              ref.read(profileImgProvider.notifier).removeProfileImg().then(
+                (value) {
+                  _smackMsg('Profile image removed');
+                  setState(() {
+                    _selectedImage = null;
+                  });
+                },
+              );
             },
-            icon: const Icon(Icons.cancel),
-            label: Text(
-              'close',
-              style: TextStyle(color: colorScheme.errorContainer),
-            ),
+            icon: const Icon(Icons.delete),
             style: ButtonStyle(
               backgroundColor: MaterialStatePropertyAll(colorScheme.error),
               iconColor: MaterialStatePropertyAll(colorScheme.errorContainer),
               side: const MaterialStatePropertyAll(BorderSide.none),
+            ),
+          ),
+        if (_isLoading)
+          const CircularProgressIndicator()
+        else
+          ElevatedButton.icon(
+            onPressed: handelUpload,
+            icon: const Icon(Icons.upload),
+            label: Text(
+              _selectedImage == null ? 'upload' : 'change',
+              style: TextStyle(color: colorScheme.primaryContainer),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: colorScheme.secondaryContainer,
             ),
           ),
       ],

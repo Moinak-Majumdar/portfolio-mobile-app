@@ -48,7 +48,7 @@ class ImgImporter extends ConsumerWidget {
                     child: Stack(
                       children: [
                         Center(
-                          child: isUsingStorage
+                          child: isUsingStorage == StorageOptions.offline
                               ? FutureBuilder(
                                   future: ref
                                       .read(storageProvider.notifier)

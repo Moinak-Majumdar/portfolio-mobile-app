@@ -21,7 +21,7 @@ class ViewPhotography extends ConsumerStatefulWidget {
 class _ViewPhotographyState extends ConsumerState<ViewPhotography> {
   static final _key = GlobalKey<ExpandableFabState>();
   static final _formKey = GlobalKey<FormState>();
-  late bool _isUsingStorage;
+  late StorageOptions _isUsingStorage;
 
   @override
   void initState() {
@@ -137,7 +137,7 @@ class _ViewPhotographyState extends ConsumerState<ViewPhotography> {
     }
 
     return Scaffold(
-      body: _isUsingStorage
+      body: _isUsingStorage == StorageOptions.offline
           ? FutureBuilder(
               future: ref.read(storageProvider.notifier).getStorageItem(
                     dir: 'photography',

@@ -43,7 +43,7 @@ class DocCard extends ConsumerWidget {
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: isUsingStorage
+                child: isUsingStorage == StorageOptions.offline
                     ? FutureBuilder(
                         future: ref
                             .read(storageProvider.notifier)

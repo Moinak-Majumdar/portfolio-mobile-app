@@ -206,7 +206,7 @@ class _PhotographyUploaderState extends ConsumerState<PhotographyUploader> {
 
     if (response.statusCode == 200) {
       ref.read(photographyProvider.notifier).fetch();
-      await ref.read(storageProvider.notifier).explicitAddItem(
+      await ref.read(storageProvider.notifier).explicitlyAddItem(
             imgName: imgName,
             dir: 'photography',
             image: _selectedImage!,

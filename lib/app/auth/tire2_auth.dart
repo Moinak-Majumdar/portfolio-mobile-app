@@ -108,11 +108,17 @@ class _Tire2AuthState extends ConsumerState<Tire2Auth> {
         .then((value) {
       if (value) {
         Navigator.pop(context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (ctx) => const LandingScreen(),
-          ),
+        Timer(
+          const Duration(seconds: 2),
+          () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (ctx) => const LandingScreen(),
+              ),
+            );
+          },
         );
       }
     }).catchError((e) {

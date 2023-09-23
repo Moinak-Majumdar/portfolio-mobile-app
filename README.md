@@ -6,7 +6,7 @@ My first flutter project after completion of flutter <a href="https://www.udemy.
 
 ### Features
 
-    * Authentication
+    * Authentication (email and password + biometric)
     * Initially download all images from firebase preventing from executing daily storage bandwidth limit.
     * Background music.
     * Dynamic splash screen image.

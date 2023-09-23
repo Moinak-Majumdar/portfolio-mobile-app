@@ -241,7 +241,7 @@ class _ImageUploaderState extends ConsumerState<ImageUploader> {
 
     if (response.statusCode == 200) {
       ref.read(cloudProvider.notifier).fetch();
-      await ref.read(storageProvider.notifier).explicitAddItem(
+      await ref.read(storageProvider.notifier).explicitlyAddItem(
             dir: _enteredProjectName,
             imgName: imgName,
             image: _selectedImage!,

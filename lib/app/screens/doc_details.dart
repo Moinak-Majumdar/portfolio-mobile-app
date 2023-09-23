@@ -80,7 +80,7 @@ class DocDetails extends ConsumerWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Center(
-                  child: isUsingStorage
+                  child: isUsingStorage == StorageOptions.offline
                       ? FutureBuilder(
                           future: ref
                               .read(storageProvider.notifier)
@@ -313,13 +313,14 @@ class ImageSlider extends ConsumerStatefulWidget {
 }
 
 class _ImageSliderState extends ConsumerState<ImageSlider> {
-  late bool _isUsingStorage;
+  late StorageOptions _isUsingStorage;
   int _screenShotIndex = 1;
   final titleStyle = GoogleFonts.pacifico(color: Colors.black, fontSize: 18);
 
   @override
   void initState() {
     _isUsingStorage = ref.read(storageProvider);
+    print(_isUsingStorage);
     super.initState();
   }
 
@@ -363,7 +364,7 @@ class _ImageSliderState extends ConsumerState<ImageSlider> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: _isUsingStorage
+                  child: _isUsingStorage == StorageOptions.offline
                       ? FutureBuilder(
                           future: ref
                               .read(storageProvider.notifier)

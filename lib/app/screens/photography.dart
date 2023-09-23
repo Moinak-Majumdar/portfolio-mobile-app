@@ -20,7 +20,7 @@ class PhotographyScreen extends ConsumerStatefulWidget {
 class _PhotographyScreenState extends ConsumerState<PhotographyScreen> {
   late Future<PhotographyServerSchema> _futurePhotography;
   PhotographyServerSchema? _photographyData;
-  late bool _isUsingStorage;
+  late StorageOptions _isUsingStorage;
 
   @override
   void initState() {
@@ -72,65 +72,57 @@ class _PhotographyScreenState extends ConsumerState<PhotographyScreen> {
             } else {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: GridView.custom(
-                  gridDelegate: SliverQuiltedGridDelegate(
+                child: MasonryGridView.builder(
+                  gridDelegate:
+                      const SliverSimpleGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    repeatPattern: QuiltedGridRepeatPattern.inverted,
-                    pattern: const [
-                      QuiltedGridTile(2, 1),
-                      QuiltedGridTile(1, 1),
-                      QuiltedGridTile(2, 1),
-                      QuiltedGridTile(2, 1),
-                      // QuiltedGridTile(mainAxisCount, crossAxisCount)
-                    ],
                   ),
-                  childrenDelegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return InkWell(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (ctx) => ViewPhotography(
-                              path: _isUsingStorage
-                                  ? data[index].name
-                                  : data[index].url,
-                            ),
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                  itemCount: data.length,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (ctx) => ViewPhotography(
+                            path: _isUsingStorage == StorageOptions.offline
+                                ? data[index].name
+                                : data[index].url,
                           ),
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: _isUsingStorage
-                              ? FutureBuilder(
-                                  future: ref
-                                      .read(storageProvider.notifier)
-                                      .getStorageItem(
-                                        dir: 'photography',
-                                        imgName: data[index].name,
-                                      ),
-                                  builder: (ctx, snapshot) {
-                                    if (snapshot.hasData) {
-                                      return Image.file(
-                                        snapshot.data!.image,
-                                        fit: BoxFit.fill,
-                                      );
-                                    }
-                                    return Image.asset(
-                                      'assets/image/photography.gif',
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: _isUsingStorage == StorageOptions.offline
+                            ? FutureBuilder(
+                                future: ref
+                                    .read(storageProvider.notifier)
+                                    .getStorageItem(
+                                      dir: 'photography',
+                                      imgName: data[index].name,
+                                    ),
+                                builder: (ctx, snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Image.file(
+                                      snapshot.data!.image,
                                       fit: BoxFit.fill,
                                     );
-                                  })
-                              : FadeInImage.assetNetwork(
-                                  placeholder: 'assets/image/photography.gif',
-                                  image: data[index].url,
-                                  fit: BoxFit.fill,
-                                ),
-                        ),
-                      );
-                    },
-                    childCount: data.length,
-                  ),
+                                  }
+                                  return Image.asset(
+                                    'assets/image/photography.gif',
+                                    fit: BoxFit.fill,
+                                  );
+                                },
+                              )
+                            : FadeInImage.assetNetwork(
+                                placeholder: 'assets/image/photography.gif',
+                                image: data[index].url,
+                                fit: BoxFit.fill,
+                              ),
+                      ),
+                    );
+                  },
                 ),
               );
             }

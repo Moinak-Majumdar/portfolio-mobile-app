@@ -26,7 +26,8 @@ class _SettingsState extends ConsumerState<Settings> {
 
   @override
   void initState() {
-    _isStorage = ref.read(storageProvider);
+    _isStorage =
+        ref.read(storageProvider) == StorageOptions.offline ? true : false;
     super.initState();
   }
 
@@ -67,7 +68,7 @@ class _SettingsState extends ConsumerState<Settings> {
                   style: textTheme.titleLarge,
                 ),
                 trailing: const Icon(
-                  Icons.assignment_ind_sharp,
+                  Icons.account_circle_rounded,
                   size: 26,
                 ),
                 subtitle: Text(
@@ -95,10 +96,15 @@ class _SettingsState extends ConsumerState<Settings> {
               CheckboxListTile(
                 value: _isStorage,
                 onChanged: (val) {
-                  ref.read(storageProvider.notifier).toggleStorage(val!);
-                  setState(() {
-                    _isStorage = val;
-                  });
+                  if (val != null) {
+                    ref.read(storageProvider.notifier).storageSetting(
+                          val ? StorageOptions.offline : StorageOptions.online,
+                        );
+                    setState(() {
+                      _isStorage = val;
+                    });
+                  }
+                  return;
                 },
                 title: Text(
                   'Offline Mode',

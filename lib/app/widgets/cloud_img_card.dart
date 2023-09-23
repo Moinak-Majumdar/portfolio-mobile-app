@@ -23,7 +23,7 @@ class CloudImgCard extends ConsumerStatefulWidget {
 class _CloudImgCardState extends ConsumerState<CloudImgCard> {
   static final _formKey = GlobalKey<FormState>();
   bool _isCopied = false;
-  late bool _isUsingStorage;
+  late StorageOptions _isUsingStorage;
 
   @override
   void initState() {
@@ -57,6 +57,8 @@ class _CloudImgCardState extends ConsumerState<CloudImgCard> {
 
     if (response.statusCode == 200) {
       ref.read(cloudProvider.notifier).fetch();
+      await ref.read(storageProvider.notifier).explicitlyRemoveItem(
+          dir: widget.details.projectName, imgName: widget.details.imgName);
       smackMsg('Cloud Image Deleted ...', closeScreen: true);
     } else {
       throw Exception('Api Failed...');
@@ -84,7 +86,7 @@ class _CloudImgCardState extends ConsumerState<CloudImgCard> {
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Center(
-              child: _isUsingStorage
+              child: _isUsingStorage == StorageOptions.offline
                   ? FutureBuilder(
                       future: ref.read(storageProvider.notifier).getStorageItem(
                             dir: widget.details.projectName,
