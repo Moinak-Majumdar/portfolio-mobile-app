@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -36,6 +37,7 @@ class _PhotographyScreenState extends ConsumerState<PhotographyScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Photography', style: GoogleFonts.pacifico()),
+        centerTitle: true,
         actions: [
           IconButton(
             onPressed: () {
@@ -72,23 +74,26 @@ class _PhotographyScreenState extends ConsumerState<PhotographyScreen> {
             } else {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: MasonryGridView.builder(
-                  gridDelegate:
-                      const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                child: GridView.custom(
+                  gridDelegate: SliverQuiltedGridDelegate(
                     crossAxisCount: 2,
+                    pattern: const [
+                      QuiltedGridTile(2, 1),
+                      QuiltedGridTile(1, 1),
+                      QuiltedGridTile(2, 1),
+                      QuiltedGridTile(2, 1),
+                    ],
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    repeatPattern: QuiltedGridRepeatPattern.inverted,
                   ),
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                  itemCount: data.length,
-                  itemBuilder: (context, index) {
-                    return InkWell(
+                  childrenDelegate: SliverChildBuilderDelegate(
+                    (ctx, index) => InkWell(
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (ctx) => ViewPhotography(
-                            path: _isUsingStorage == StorageOptions.offline
-                                ? data[index].name
-                                : data[index].url,
+                            details: data[index],
                           ),
                         ),
                       ),
@@ -112,17 +117,27 @@ class _PhotographyScreenState extends ConsumerState<PhotographyScreen> {
                                   return Image.asset(
                                     'assets/image/photography.gif',
                                     fit: BoxFit.fill,
+                                    height: 280,
                                   );
                                 },
                               )
-                            : FadeInImage.assetNetwork(
-                                placeholder: 'assets/image/photography.gif',
-                                image: data[index].url,
+                            : CachedNetworkImage(
+                                placeholder: (context, url) => Image.asset(
+                                  'assets/image/photography.gif',
+                                  fit: BoxFit.fill,
+                                  height: 280,
+                                ),
+                                imageUrl: data[index].url,
                                 fit: BoxFit.fill,
+                                errorWidget: (context, url, error) =>
+                                    const Center(
+                                  child: Icon(Icons.error),
+                                ),
                               ),
                       ),
-                    );
-                  },
+                    ),
+                    childCount: data.length,
+                  ),
                 ),
               );
             }

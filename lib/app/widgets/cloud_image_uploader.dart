@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:moinak05_web_dev_dashboard/app/utils/smack_msg.dart';
 import 'package:moinak05_web_dev_dashboard/provider/storage.dart';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
@@ -33,21 +34,7 @@ class _ImageUploaderState extends ConsumerState<ImageUploader> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    _smackMsg = (val) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.black,
-          padding: const EdgeInsets.all(16),
-          content: Text(
-            val,
-            style: textTheme.titleMedium!.copyWith(
-              color: Colors.white,
-            ),
-          ),
-        ),
-      );
-    };
+    _smackMsg = (val) => SmackMsg(smack: val, context: context);
 
     return AlertDialog(
       title: Text(

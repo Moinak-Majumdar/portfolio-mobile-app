@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -87,7 +88,6 @@ class DocDetails extends ConsumerWidget {
                               .getStorageItemByUrl(url: docData.cover),
                           builder: (ctx, snapshot) {
                             if (snapshot.hasData) {
-                              print(snapshot.data!.imgName);
                               return Image.file(
                                 snapshot.data!.image,
                                 height: 250,
@@ -102,12 +102,15 @@ class DocDetails extends ConsumerWidget {
                               fit: BoxFit.fill,
                             );
                           })
-                      : FadeInImage.assetNetwork(
-                          placeholder: 'assets/image/docLoader.gif',
-                          image: docData.cover,
+                      : CachedNetworkImage(
+                          placeholder: (context, url) =>
+                              Image.asset('assets/image/docLoader.gif'),
+                          imageUrl: docData.cover,
                           height: 250,
                           width: double.infinity,
                           fit: BoxFit.fill,
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
                         ),
                 ),
               ),
@@ -320,7 +323,6 @@ class _ImageSliderState extends ConsumerState<ImageSlider> {
   @override
   void initState() {
     _isUsingStorage = ref.read(storageProvider);
-    print(_isUsingStorage);
     super.initState();
   }
 
@@ -381,9 +383,12 @@ class _ImageSliderState extends ConsumerState<ImageSlider> {
                               fit: BoxFit.cover,
                             );
                           })
-                      : FadeInImage.assetNetwork(
-                          placeholder: 'assets/image/docLoader.gif',
-                          image: e,
+                      : CachedNetworkImage(
+                          placeholder: (context, url) =>
+                              Image.asset('assets/image/docLoader.gif'),
+                          imageUrl: e,
+                          errorWidget: (context, url, error) =>
+                              const Center(child: Icon(Icons.error)),
                           fit: BoxFit.cover,
                         ),
                 ),

@@ -1,18 +1,20 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moinak05_web_dev_dashboard/models/photography.dart';
 import 'package:moinak05_web_dev_dashboard/provider/photography.dart';
 import 'package:http/http.dart' as http;
 import 'package:moinak05_web_dev_dashboard/provider/storage.dart';
 
 class ViewPhotography extends ConsumerStatefulWidget {
-  const ViewPhotography({super.key, required this.path});
-  final String path;
+  const ViewPhotography({super.key, required this.details});
+  final PhotographySchema details;
 
   @override
   ConsumerState<ViewPhotography> createState() => _ViewPhotographyState();
@@ -55,7 +57,7 @@ class _ViewPhotographyState extends ConsumerState<ViewPhotography> {
       }
       _formKey.currentState!.save();
 
-      final imgPath = FirebaseStorage.instance.refFromURL(widget.path);
+      final imgPath = FirebaseStorage.instance.refFromURL(widget.details.url);
 
       final deleteRef = FirebaseStorage.instance.ref().child(imgPath.fullPath);
       await deleteRef.delete();
@@ -64,7 +66,7 @@ class _ViewPhotographyState extends ConsumerState<ViewPhotography> {
 
       final body = {
         "apiKey": dotenv.env['DB_KEY'],
-        "url": widget.path,
+        "url": widget.details.url,
       };
 
       final response = await http.post(
@@ -106,6 +108,7 @@ class _ViewPhotographyState extends ConsumerState<ViewPhotography> {
                   ],
                 ),
               ),
+              const SizedBox(height: 10),
               Form(
                 key: _formKey,
                 child: TextFormField(
@@ -129,6 +132,11 @@ class _ViewPhotographyState extends ConsumerState<ViewPhotography> {
           actions: [
             ElevatedButton(
               onPressed: handelDelete,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor:
+                    Theme.of(context).colorScheme.secondaryContainer,
+              ),
               child: const Text('Submit'),
             ),
           ],
@@ -137,49 +145,60 @@ class _ViewPhotographyState extends ConsumerState<ViewPhotography> {
     }
 
     return Scaffold(
-      body: _isUsingStorage == StorageOptions.offline
-          ? FutureBuilder(
-              future: ref.read(storageProvider.notifier).getStorageItem(
-                    dir: 'photography',
-                    imgName: widget.path,
-                  ),
-              builder: (ctx, snapshot) {
-                if (snapshot.hasData) {
-                  return Image.file(
-                    snapshot.data!.image,
+      body: Center(
+        child: _isUsingStorage == StorageOptions.offline
+            ? FutureBuilder(
+                future: ref.read(storageProvider.notifier).getStorageItem(
+                      dir: 'photography',
+                      imgName: widget.details.name,
+                    ),
+                builder: (ctx, snapshot) {
+                  if (snapshot.hasData) {
+                    return Image.file(
+                      snapshot.data!.image,
+                      height: double.infinity,
+                      width: double.infinity,
+                      fit: BoxFit.fill,
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Image not found, To use local image make sure it was downloaded.',
+                        style: GoogleFonts.pacifico(
+                          fontSize: 20,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }
+                  return Image.asset(
+                    'assets/image/photography.gif',
                     height: double.infinity,
                     width: double.infinity,
                     fit: BoxFit.fill,
                   );
-                }
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Image not found, To use local image make sure it was downloaded.',
-                      style: GoogleFonts.pacifico(
-                        fontSize: 20,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                }
-                return Image.asset(
-                  'assets/image/photography.gif',
-                  height: double.infinity,
-                  width: double.infinity,
-                  fit: BoxFit.fill,
-                );
-              })
-          : FadeInImage.assetNetwork(
-              placeholder: 'assets/image/photography.gif',
-              image: widget.path,
-              height: double.infinity,
-              width: double.infinity,
-              fit: BoxFit.fill,
-            ),
+                })
+            : CachedNetworkImage(
+                placeholder: (context, url) =>
+                    Image.asset('assets/image/photography.gif'),
+                errorWidget: (context, url, error) => Center(
+                  child: Text(
+                    'Failed to load image from network !',
+                    style: GoogleFonts.pacifico(fontSize: 22),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                imageUrl: widget.details.url,
+                height: double.infinity,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+      ),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: ExpandableFab(
         key: _key,
+        childrenOffset: Offset.fromDirection(30),
         children: [
           FloatingActionButton(
             onPressed: confirmation,

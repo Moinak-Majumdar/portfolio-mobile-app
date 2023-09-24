@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -74,12 +75,15 @@ class ImgImporter extends ConsumerWidget {
                                     );
                                   },
                                 )
-                              : FadeInImage.assetNetwork(
-                                  image: options[i].url,
-                                  placeholder: 'assets/image/cloud.gif',
+                              : CachedNetworkImage(
+                                  imageUrl: options[i].url,
+                                  placeholder: (context, url) =>
+                                      Image.asset('assets/image/cloud.gif'),
                                   fit: BoxFit.fill,
                                   height: 250,
                                   width: double.infinity,
+                                  errorWidget: (context, url, error) =>
+                                      Text('Failed to load image !'),
                                 ),
                         ),
                         if (options[i].url == selectedUrl)

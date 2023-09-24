@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:moinak05_web_dev_dashboard/app/utils/smack_msg.dart';
 import 'package:moinak05_web_dev_dashboard/provider/photography.dart';
 import 'package:moinak05_web_dev_dashboard/provider/storage.dart';
 import 'package:path/path.dart';
@@ -21,7 +22,7 @@ class PhotographyUploader extends ConsumerStatefulWidget {
 }
 
 class _PhotographyUploaderState extends ConsumerState<PhotographyUploader> {
-  late void Function(String val) _smackMsg;
+  late void Function(String val, {bool willClose}) _smackMsg;
   File? _selectedImage;
   bool _isLoading = false;
   bool _isSuccess = false;
@@ -47,21 +48,11 @@ class _PhotographyUploaderState extends ConsumerState<PhotographyUploader> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    _smackMsg = (String smack) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.black,
-          padding: const EdgeInsets.all(16),
-          content: Text(
-            smack,
-            style: textTheme.titleMedium!.copyWith(
-              color: Colors.white,
-            ),
-          ),
-        ),
-      );
-    };
+    _smackMsg = (String smack, {bool willClose = false}) => SmackMsg(
+          smack: smack,
+          context: context,
+          willCloseScreen: willClose,
+        );
 
     return AlertDialog(
       title: Text(
@@ -213,7 +204,9 @@ class _PhotographyUploaderState extends ConsumerState<PhotographyUploader> {
             url: storageUrl,
           );
       _smackMsg(
-          '$imgName is uploaded successfully, Upload a new image or close.');
+        '$imgName is uploaded successfully, Upload a new image or close.',
+        willClose: true,
+      );
       setState(() {
         _isLoading = false;
         _isSuccess = true;

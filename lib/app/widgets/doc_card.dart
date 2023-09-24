@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -66,12 +67,15 @@ class DocCard extends ConsumerWidget {
                           );
                         }),
                       )
-                    : FadeInImage.assetNetwork(
-                        placeholder: 'assets/image/docLoader.gif',
-                        image: data.cover,
+                    : CachedNetworkImage(
+                        placeholder: (context, url) =>
+                            Image.asset('assets/image/docLoader.gif'),
+                        imageUrl: data.cover,
                         height: 250,
                         width: double.infinity,
                         fit: BoxFit.fill,
+                        errorWidget: (context, url, error) =>
+                            const Text('Failed to load image !'),
                       ),
               ),
             ),

@@ -7,10 +7,11 @@ import 'package:moinak05_web_dev_dashboard/app/widgets/loader.dart';
 import 'package:moinak05_web_dev_dashboard/hive_html.dart';
 
 const _boxName = 'htmlPlaygroundData';
+const _boxId = 'htmlPlaygroundBody';
 
 Future<HiveHtml> futureHtml() async {
   final box = await Hive.openBox<HiveHtml>(_boxName);
-  final data = box.get('htmlBody');
+  final data = box.get(_boxId);
   await box.close();
   return data ?? HiveHtml(body: '<h1>HTML Play</h1>');
 }
@@ -46,7 +47,7 @@ class _HtmlPlaygroundState extends State<HtmlPlayground> {
     );
     final box = await Hive.openBox<HiveHtml>(_boxName);
     await box.put(
-      'htmlBody',
+      _boxId,
       HiveHtml(body: _html),
     );
     await box.close();

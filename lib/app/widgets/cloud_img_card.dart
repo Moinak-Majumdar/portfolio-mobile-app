@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:moinak05_web_dev_dashboard/app/utils/smack_msg.dart';
 import 'package:moinak05_web_dev_dashboard/models/cloud.dart';
 import 'package:moinak05_web_dev_dashboard/provider/cloud.dart';
 import 'package:moinak05_web_dev_dashboard/provider/doc_img.dart';
@@ -59,7 +61,7 @@ class _CloudImgCardState extends ConsumerState<CloudImgCard> {
       ref.read(cloudProvider.notifier).fetch();
       await ref.read(storageProvider.notifier).explicitlyRemoveItem(
           dir: widget.details.projectName, imgName: widget.details.imgName);
-      smackMsg('Cloud Image Deleted ...', closeScreen: true);
+      successDelete();
     } else {
       throw Exception('Api Failed...');
     }
@@ -109,12 +111,19 @@ class _CloudImgCardState extends ConsumerState<CloudImgCard> {
                           width: double.infinity,
                         );
                       })
-                  : FadeInImage.assetNetwork(
-                      placeholder: 'assets/image/cloud.gif',
-                      image: widget.details.url,
+                  : CachedNetworkImage(
+                      placeholder: (context, url) => Image.asset(
+                        'assets/image/cloud.gif',
+                        fit: BoxFit.fill,
+                        height: 250,
+                        width: double.infinity,
+                      ),
+                      imageUrl: widget.details.url,
                       fit: BoxFit.fill,
                       height: 250,
                       width: double.infinity,
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
                     ),
             ),
           ),
@@ -277,30 +286,10 @@ class _CloudImgCardState extends ConsumerState<CloudImgCard> {
     );
   }
 
-  void smackMsg(String smack, {bool closeScreen = false}) {
-    if (closeScreen) {
-      Navigator.of(context).pop();
-    }
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.black,
-        padding: const EdgeInsets.all(16),
-        content: Text(
-          smack,
-          style: GoogleFonts.ubuntu().copyWith(
-            color: Colors.white,
-            fontSize: 20,
-          ),
-        ),
-      ),
-    );
-  }
-
   void copyLink() async {
     if (_isCopied == false) {
       Clipboard.setData(ClipboardData(text: widget.details.url));
-      smackMsg('Url is copied to clipboard.');
+      SmackMsg(smack: 'Url is copied to clipboard.', context: context);
       setState(() {
         _isCopied = true;
       });
@@ -320,11 +309,19 @@ class _CloudImgCardState extends ConsumerState<CloudImgCard> {
             url: widget.details.url,
           ),
         );
-    smackMsg('Exported: ${widget.details.imgName}');
+    SmackMsg(smack: 'Exported: ${widget.details.imgName}', context: context);
   }
 
   void removeExportedImg() {
     ref.read(imgProvider.notifier).remove(widget.details.url);
-    smackMsg('Removed: ${widget.details.imgName}');
+    SmackMsg(smack: 'Removed: ${widget.details.imgName}', context: context);
+  }
+
+  void successDelete() {
+    SmackMsg(
+      smack: 'Cloud Image Deleted ...',
+      context: context,
+      willCloseScreen: true,
+    );
   }
 }

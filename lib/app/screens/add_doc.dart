@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
+import 'package:moinak05_web_dev_dashboard/app/utils/smack_msg.dart';
 import 'package:moinak05_web_dev_dashboard/app/widgets/dynamic_input.dart';
 import 'package:moinak05_web_dev_dashboard/app/widgets/img_importer.dart';
 import 'package:moinak05_web_dev_dashboard/app/widgets/loader.dart';
@@ -13,8 +14,8 @@ import 'package:moinak05_web_dev_dashboard/hive_add_doc.dart';
 import 'package:moinak05_web_dev_dashboard/provider/doc.dart';
 import 'package:moinak05_web_dev_dashboard/provider/html.dart';
 
-const boxName = 'AddDocBox';
-const boxId = 'currentDoc';
+const _boxName = 'AddDocBox';
+const _boxId = 'currentDoc';
 
 enum DocType { project, work }
 
@@ -541,23 +542,9 @@ class _AddDocState extends ConsumerState<AddDoc> {
   void _importHtml() {
     final html = ref.read(htmlProvider);
     if (html == '') {
-      showDialog(
+      SmackMsg(
+        smack: 'Please export html first from HTML Play',
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Please export html first from HTML Play'),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Ok'),
-            )
-          ],
-        ),
       );
     } else {
       _description.text = html;
@@ -684,9 +671,8 @@ class _AddDocState extends ConsumerState<AddDoc> {
 
 // hl2 value fetched by future builder at run time.
 Future<HiveAddDoc> getDocFromMemory() async {
-  final box = await Hive.openBox<HiveAddDoc>(boxName);
-  // await box.clear();
-  final data = box.get(boxId);
+  final box = await Hive.openBox<HiveAddDoc>(_boxName);
+  final data = box.get(_boxId);
   await box.close();
   return data ??
       HiveAddDoc(
@@ -719,9 +705,9 @@ void saveDoc({
   required List<String> tools,
   required String type,
 }) async {
-  final box = await Hive.openBox<HiveAddDoc>(boxName);
+  final box = await Hive.openBox<HiveAddDoc>(_boxName);
   await box.put(
-    boxId,
+    _boxId,
     HiveAddDoc(
       cover: cover,
       description: description,

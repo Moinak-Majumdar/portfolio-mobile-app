@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moinak05_web_dev_dashboard/app/utils/smack_msg.dart';
 import 'package:moinak05_web_dev_dashboard/app/widgets/dynamic_input.dart';
 import 'package:moinak05_web_dev_dashboard/app/widgets/img_importer.dart';
 import 'package:moinak05_web_dev_dashboard/hive_add_doc.dart';
@@ -513,23 +514,9 @@ class _DocUpdateState extends ConsumerState<DocUpdate> {
   void _importHtml() {
     final html = ref.read(htmlProvider);
     if (html == '') {
-      showDialog(
+      SmackMsg(
+        smack: 'Please export html first from HTML Play',
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Please export html first from HTML Play'),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Ok'),
-            )
-          ],
-        ),
       );
     } else {
       _description.text = html;

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:moinak05_web_dev_dashboard/app/utils/smack_msg.dart';
 import 'package:moinak05_web_dev_dashboard/provider/profile_img.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,7 +18,7 @@ class ChangeProfile extends ConsumerStatefulWidget {
 class _ChangeProfileState extends ConsumerState<ChangeProfile> {
   File? _selectedImage;
   bool _isLoading = false;
-  late void Function(String val, {bool isClosed}) _smackMsg;
+  late void Function(String msg, bool willClose) _smackMsg;
 
   @override
   void initState() {
@@ -74,7 +75,7 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
           localPath: copy.path,
         );
 
-    _smackMsg('Profile image is changed.', isClosed: true);
+    _smackMsg('Profile image is changed.', false);
     setState(() {
       _isLoading = false;
     });
@@ -85,22 +86,11 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    _smackMsg = (String smack, {bool isClosed = false}) {
-      if (isClosed) Navigator.pop(context);
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.black,
-          padding: const EdgeInsets.all(16),
-          content: Text(
-            smack,
-            style: textTheme.titleLarge!.copyWith(
-              color: Colors.white,
-            ),
-          ),
-        ),
-      );
-    };
+    _smackMsg = (msg, willClose) => SmackMsg(
+          smack: msg,
+          context: context,
+          willCloseScreen: willClose,
+        );
 
     return AlertDialog(
       title: Text(
@@ -185,7 +175,7 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
             onPressed: () {
               ref.read(profileImgProvider.notifier).removeProfileImg().then(
                 (value) {
-                  _smackMsg('Profile image removed');
+                  _smackMsg('Profile image removed', true);
                   setState(() {
                     _selectedImage = null;
                   });
