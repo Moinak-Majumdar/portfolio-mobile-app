@@ -35,6 +35,10 @@ My first flutter project after completion of flutter <a href="https://www.udemy.
 5. Adrenaline - Jack Wall
 6. No Turning Back - Olivier Deriviere
 
+### Backend
+ Backend of this app is created with express and mongodb (mongoose).
+
+Live : <a href="https://github.com/Moinak-Majumdar/portfolio-server">git repository</a>
 
 ### Thanks to
 

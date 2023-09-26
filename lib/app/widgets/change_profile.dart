@@ -17,11 +17,12 @@ class ChangeProfile extends ConsumerStatefulWidget {
 
 class _ChangeProfileState extends ConsumerState<ChangeProfile> {
   File? _selectedImage;
-  bool _isLoading = false;
+  late ImagePicker _ip;
   late void Function(String msg, bool willClose) _smackMsg;
 
   @override
   void initState() {
+    _ip = ImagePicker();
     ref.read(profileImgProvider.notifier).isProfileImgAvailable().then((value) {
       if (value != null) {
         setState(() {
@@ -32,13 +33,10 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
     super.initState();
   }
 
-  void _pickPicture() async {
-    final ip = ImagePicker();
+  void _pickPicture(ImageSource source) async {
     XFile? pikedImage;
 
-    pikedImage = await ip.pickImage(
-      source: ImageSource.gallery,
-    );
+    pikedImage = await _ip.pickImage(source: source);
 
     if (pikedImage == null) {
       return;
@@ -48,14 +46,10 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
     });
   }
 
-  void handelUpload() async {
+  Future<void> handelUpload() async {
     if (_selectedImage == null) {
       return;
     }
-
-    setState(() {
-      _isLoading = true;
-    });
 
     final imgName = basename(_selectedImage!.path);
 
@@ -76,9 +70,6 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
         );
 
     _smackMsg('Profile image is changed.', false);
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
@@ -92,119 +83,162 @@ class _ChangeProfileState extends ConsumerState<ChangeProfile> {
           willCloseScreen: willClose,
         );
 
-    return AlertDialog(
-      title: Text(
-        _selectedImage == null
-            ? 'Change profile image'
-            : basename(_selectedImage!.path),
-        style: textTheme.titleLarge,
-      ),
-      content: Container(
-        alignment: Alignment.center,
-        margin: const EdgeInsets.only(top: 16),
-        height: 200,
-        width: 300,
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(16),
-          ),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              colorScheme.secondary,
-              colorScheme.onSurface,
-            ],
-          ),
-        ),
-        child: _selectedImage == null
-            ? Center(
-                child: TextButton.icon(
-                  onPressed: _pickPicture,
-                  icon: const Icon(
-                    Icons.upload_file,
-                    color: Colors.white70,
-                  ),
-                  label: const Text(
-                    'Choose picture',
-                    style: TextStyle(color: Colors.white),
+    return Padding(
+      padding: const EdgeInsets.only(top: 25, right: 16, left: 16, bottom: 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _selectedImage == null
+                    ? 'Profile image'
+                    : 'Change profile image',
+                style: textTheme.titleLarge,
+              ),
+              if (_selectedImage != null)
+                IconButton(
+                  onPressed: () {
+                    ref
+                        .read(profileImgProvider.notifier)
+                        .removeProfileImg()
+                        .then(
+                      (value) {
+                        _smackMsg('Profile image removed', true);
+                        setState(() {
+                          _selectedImage = null;
+                        });
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.delete),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: colorScheme.secondaryContainer,
                   ),
                 ),
-              )
-            : Stack(
-                children: [
-                  Image.file(
-                    _selectedImage!,
-                    fit: BoxFit.cover,
-                    width: 300,
-                    height: 200,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      color: Colors.black.withAlpha(230),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      alignment: Alignment.center,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TextButton.icon(
-                            onPressed: _pickPicture,
-                            icon: Icon(
-                              Icons.upload_file,
-                              color: colorScheme.inversePrimary,
-                            ),
-                            label: const Text(
-                              'change',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+            ],
+          ),
+          Container(
+            alignment: Alignment.center,
+            margin: const EdgeInsets.symmetric(vertical: 25),
+            height: 250,
+            width: MediaQuery.of(context).size.width,
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(
+                Radius.circular(16),
+              ),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  colorScheme.secondary,
+                  colorScheme.onSurface,
                 ],
               ),
+            ),
+            child: _selectedImage == null
+                ? Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextButton.icon(
+                          onPressed: () {
+                            _pickPicture(ImageSource.camera);
+                          },
+                          icon: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white70,
+                          ),
+                          label: const Text(
+                            'Camera',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        const Text(
+                          '/',
+                          style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white70,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () {
+                            _pickPicture(ImageSource.gallery);
+                          },
+                          icon: const Icon(
+                            Icons.photo,
+                            color: Colors.white70,
+                          ),
+                          label: const Text(
+                            'Gallery',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Stack(
+                    children: [
+                      Image.file(
+                        _selectedImage!,
+                        fit: BoxFit.cover,
+                        width: MediaQuery.of(context).size.width,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          color: Colors.black.withAlpha(230),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedImage = null;
+                                  });
+                                },
+                                child: Text(
+                                  'Change',
+                                  style: textTheme.titleMedium!.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  handelUpload().then(
+                                    (value) => Navigator.pop(context),
+                                  );
+                                },
+                                child: Text(
+                                  'Done',
+                                  style: textTheme.titleMedium!.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
       ),
-      actions: [
-        if (_selectedImage != null)
-          IconButton(
-            onPressed: () {
-              ref.read(profileImgProvider.notifier).removeProfileImg().then(
-                (value) {
-                  _smackMsg('Profile image removed', true);
-                  setState(() {
-                    _selectedImage = null;
-                  });
-                },
-              );
-            },
-            icon: const Icon(Icons.delete),
-            style: ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll(colorScheme.error),
-              iconColor: MaterialStatePropertyAll(colorScheme.errorContainer),
-              side: const MaterialStatePropertyAll(BorderSide.none),
-            ),
-          ),
-        if (_isLoading)
-          const CircularProgressIndicator()
-        else
-          ElevatedButton.icon(
-            onPressed: handelUpload,
-            icon: const Icon(Icons.upload),
-            label: Text(
-              _selectedImage == null ? 'upload' : 'change',
-              style: TextStyle(color: colorScheme.primaryContainer),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: colorScheme.secondaryContainer,
-            ),
-          ),
-      ],
     );
   }
 }

@@ -213,7 +213,7 @@ class _PhotographyUploaderState extends ConsumerState<PhotographyUploader> {
         _selectedImage = null;
       });
     } else {
-      _smackMsg('Failed to delete $imgName');
+      _smackMsg('Failed to upload $imgName');
       setState(() {
         _isLoading = false;
         _isLoading = false;

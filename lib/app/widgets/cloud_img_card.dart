@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:moinak05_web_dev_dashboard/app/utils/smack_msg.dart';
+import 'package:moinak05_web_dev_dashboard/app/widgets/redownload_image.dart';
 import 'package:moinak05_web_dev_dashboard/models/cloud.dart';
 import 'package:moinak05_web_dev_dashboard/provider/cloud.dart';
 import 'package:moinak05_web_dev_dashboard/provider/doc_img.dart';
@@ -104,13 +105,25 @@ class _CloudImgCardState extends ConsumerState<CloudImgCard> {
                           );
                         }
 
-                        return Image.asset(
-                          'assets/image/cloud.gif',
-                          fit: BoxFit.fill,
-                          height: 250,
-                          width: double.infinity,
+                        return InkWell(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (ctx) => ReDownloadMissingImage(
+                                imgName: widget.details.imgName,
+                                url: widget.details.url,
+                              ),
+                            );
+                          },
+                          child: Image.asset(
+                            'assets/image/cloud.gif',
+                            fit: BoxFit.fill,
+                            height: 250,
+                            width: double.infinity,
+                          ),
                         );
-                      })
+                      },
+                    )
                   : CachedNetworkImage(
                       placeholder: (context, url) => Image.asset(
                         'assets/image/cloud.gif',

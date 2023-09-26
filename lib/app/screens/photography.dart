@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:moinak05_web_dev_dashboard/app/screens/photography_view.dart';
+import 'package:moinak05_web_dev_dashboard/app/widgets/redownload_image.dart';
 import 'package:moinak05_web_dev_dashboard/models/photography.dart';
 import 'package:moinak05_web_dev_dashboard/app/widgets/loader.dart';
 import 'package:moinak05_web_dev_dashboard/app/widgets/on_error.dart';
@@ -20,8 +23,9 @@ class PhotographyScreen extends ConsumerStatefulWidget {
 
 class _PhotographyScreenState extends ConsumerState<PhotographyScreen> {
   late Future<PhotographyServerSchema> _futurePhotography;
-  PhotographyServerSchema? _photographyData;
   late StorageOptions _isUsingStorage;
+  PhotographyServerSchema? _photographyData;
+  bool reRender = false;
 
   @override
   void initState() {
@@ -37,7 +41,6 @@ class _PhotographyScreenState extends ConsumerState<PhotographyScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Photography', style: GoogleFonts.pacifico()),
-        centerTitle: true,
         actions: [
           IconButton(
             onPressed: () {
@@ -49,6 +52,12 @@ class _PhotographyScreenState extends ConsumerState<PhotographyScreen> {
             icon: const Icon(
               Icons.file_upload_rounded,
             ),
+          ),
+          IconButton(
+            onPressed: () {
+              setState(() {});
+            },
+            icon: const Icon(Icons.refresh),
           ),
         ],
       ),
@@ -73,68 +82,96 @@ class _PhotographyScreenState extends ConsumerState<PhotographyScreen> {
               );
             } else {
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.all(8),
                 child: GridView.custom(
                   gridDelegate: SliverQuiltedGridDelegate(
-                    crossAxisCount: 2,
+                    crossAxisCount: 8,
                     pattern: const [
-                      QuiltedGridTile(2, 1),
-                      QuiltedGridTile(1, 1),
-                      QuiltedGridTile(2, 1),
-                      QuiltedGridTile(2, 1),
+                      QuiltedGridTile(8, 4),
+                      QuiltedGridTile(7, 4),
+                      QuiltedGridTile(8, 4),
+                      QuiltedGridTile(8, 4),
                     ],
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     repeatPattern: QuiltedGridRepeatPattern.inverted,
                   ),
                   childrenDelegate: SliverChildBuilderDelegate(
-                    (ctx, index) => InkWell(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (ctx) => ViewPhotography(
-                            details: data[index],
-                          ),
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: _isUsingStorage == StorageOptions.offline
-                            ? FutureBuilder(
-                                future: ref
-                                    .read(storageProvider.notifier)
-                                    .getStorageItem(
-                                      dir: 'photography',
-                                      imgName: data[index].name,
+                    (ctx, index) => ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: _isUsingStorage == StorageOptions.offline
+                          ? FutureBuilder(
+                              future: ref
+                                  .read(storageProvider.notifier)
+                                  .getStorageItem(
+                                    dir: 'photography',
+                                    imgName: data[index].name,
+                                  ),
+                              builder: (ctx, snapshot) {
+                                if (snapshot.hasData) {
+                                  return InkWell(
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (ctx) =>
+                                            ViewPhotography.usingStorage(
+                                          details: data[index],
+                                          path: snapshot.data!.image,
+                                        ),
+                                      ),
                                     ),
-                                builder: (ctx, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Image.file(
-                                      snapshot.data!.image,
-                                      fit: BoxFit.fill,
+                                    child: Hero(
+                                      tag: data[index].id,
+                                      child: Image.file(
+                                        snapshot.data!.image,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                return InkWell(
+                                  onTap: () async {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      builder: (ctx) => ReDownloadMissingImage(
+                                        imgName: data[index].name,
+                                        url: data[index].url,
+                                      ),
                                     );
-                                  }
-                                  return Image.asset(
+                                  },
+                                  child: Image.asset(
+                                    'assets/image/photography.gif',
+                                    fit: BoxFit.fill,
+                                  ),
+                                );
+                              },
+                            )
+                          : InkWell(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (ctx) => ViewPhotography(
+                                    details: data[index],
+                                  ),
+                                ),
+                              ),
+                              child: Hero(
+                                tag: data[index].id,
+                                child: CachedNetworkImage(
+                                  placeholder: (context, url) => Image.asset(
                                     'assets/image/photography.gif',
                                     fit: BoxFit.fill,
                                     height: 280,
-                                  );
-                                },
-                              )
-                            : CachedNetworkImage(
-                                placeholder: (context, url) => Image.asset(
-                                  'assets/image/photography.gif',
+                                  ),
+                                  imageUrl: data[index].url,
                                   fit: BoxFit.fill,
-                                  height: 280,
-                                ),
-                                imageUrl: data[index].url,
-                                fit: BoxFit.fill,
-                                errorWidget: (context, url, error) =>
-                                    const Center(
-                                  child: Icon(Icons.error),
+                                  errorWidget: (context, url, error) =>
+                                      const Center(
+                                    child: Icon(Icons.error),
+                                  ),
                                 ),
                               ),
-                      ),
+                            ),
                     ),
                     childCount: data.length,
                   ),

@@ -4,10 +4,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moinak05_web_dev_dashboard/app/utils/smack_msg.dart';
 import 'package:moinak05_web_dev_dashboard/app/widgets/change_profile.dart';
 import 'package:moinak05_web_dev_dashboard/provider/cloud.dart';
 import 'package:moinak05_web_dev_dashboard/provider/music.dart';
 import 'package:moinak05_web_dev_dashboard/provider/photography.dart';
+import 'package:moinak05_web_dev_dashboard/provider/profile_img.dart';
 import 'package:moinak05_web_dev_dashboard/provider/storage.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -20,6 +22,7 @@ class Settings extends ConsumerStatefulWidget {
 
 class _SettingsState extends ConsumerState<Settings> {
   late bool _isStorage;
+  late void Function(String smack) _smackMsg;
 
   bool _isDownloading = false;
   bool _isClearing = false;
@@ -34,6 +37,8 @@ class _SettingsState extends ConsumerState<Settings> {
   @override
   Widget build(context) {
     final textTheme = Theme.of(context).textTheme;
+    _smackMsg = (smack) => SmackMsg(smack: smack, context: context);
+    final profile = ref.watch(profileImgProvider);
 
     return WillPopScope(
       onWillPop: () async {
@@ -58,8 +63,9 @@ class _SettingsState extends ConsumerState<Settings> {
             children: [
               ListTile(
                 onTap: () {
-                  showDialog(
+                  showModalBottomSheet(
                     context: context,
+                    useSafeArea: true,
                     builder: (ctx) => const ChangeProfile(),
                   );
                 },
@@ -67,9 +73,41 @@ class _SettingsState extends ConsumerState<Settings> {
                   'Change Profile',
                   style: textTheme.titleLarge,
                 ),
-                trailing: const Icon(
-                  Icons.account_circle_rounded,
-                  size: 26,
+                trailing: Container(
+                  height: 32,
+                  width: 32,
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: FutureBuilder(
+                    future: ref
+                        .read(profileImgProvider.notifier)
+                        .isProfileImgAvailable(),
+                    builder: (ctx, snap) {
+                      if (snap.hasData) {
+                        final data = snap.data;
+                        return data != null
+                            ? Image.file(
+                                data.image,
+                                fit: BoxFit.cover,
+                              )
+                            : const Icon(
+                                Icons.account_circle_rounded,
+                                size: 32,
+                              );
+                      }
+                      return profile != null
+                          ? Image.file(
+                              profile.image,
+                              fit: BoxFit.cover,
+                            )
+                          : const Icon(
+                              Icons.account_circle_rounded,
+                              size: 32,
+                            );
+                    },
+                  ),
                 ),
                 subtitle: Text(
                   'Change home screen image',
@@ -209,15 +247,15 @@ class _SettingsState extends ConsumerState<Settings> {
           case TaskState.running:
             break;
           case TaskState.paused:
-            smackMsg('Error occurred : Download Paused');
+            _smackMsg('Error occurred : Download Paused');
             break;
           case TaskState.success:
             break;
           case TaskState.canceled:
-            smackMsg('Error occurred : Download Canceled');
+            _smackMsg('Error occurred : Download Canceled');
             break;
           case TaskState.error:
-            smackMsg('Error occurred : Download Failed');
+            _smackMsg('Error occurred : Download Failed');
             break;
         }
       });
@@ -244,24 +282,6 @@ class _SettingsState extends ConsumerState<Settings> {
     await ref.read(storageProvider.notifier).clearStorageItem();
 
     setState(() => _isClearing = false);
-  }
-
-  void smackMsg(String smack) {
-    Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.black,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        content: Text(
-          smack,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-          ),
-        ),
-      ),
-    );
   }
 
   Future<void> leaveAlert() async {

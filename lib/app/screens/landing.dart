@@ -68,24 +68,23 @@ class LandingScreen extends ConsumerWidget {
           ],
         ),
         drawer: const SideDrawer(),
-        body: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'Welcome moinak05',
-                  style: GoogleFonts.pacifico(
-                    fontSize: 30,
-                    color: Colors.black,
-                  ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Welcome moinak05',
+                style: GoogleFonts.pacifico(
+                  fontSize: 30,
+                  color: Colors.black,
                 ),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(360),
+              ),
+              ClipOval(
+                child: SizedBox.fromSize(
+                  size: const Size.fromRadius(200),
                   child: ColorFiltered(
                     colorFilter: const ColorFilter.mode(
                       Colors.black,
@@ -101,8 +100,6 @@ class LandingScreen extends ConsumerWidget {
                           return data != null
                               ? Image.file(
                                   data.image,
-                                  height: 460,
-                                  width: 460,
                                   fit: BoxFit.cover,
                                 )
                               : Image.asset(
@@ -113,8 +110,6 @@ class LandingScreen extends ConsumerWidget {
                         if (profile != null) {
                           return Image.file(
                             profile.image,
-                            height: 460,
-                            width: 460,
                             fit: BoxFit.cover,
                           );
                         } else {
@@ -127,41 +122,40 @@ class LandingScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                DefaultTextStyle(
-                  style: GoogleFonts.caveat(
-                    fontSize: 28,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  child: AnimatedTextKit(
-                    isRepeatingAnimation: false,
-                    animatedTexts: [
-                      TypewriterAnimatedText(
-                        random,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
+              ),
+              DefaultTextStyle(
+                style: GoogleFonts.caveat(
+                  fontSize: 28,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
-                FutureBuilder(
-                  future: ref
-                      .read(storageProvider.notifier)
-                      .isDataAvailableLocally(),
-                  builder: (ctx, snap) {
-                    if (snap.hasData) {
-                      if (snap.data == false) {
-                        return Text(
-                          'App is set to online mode. To save bandwidth download data and turn on offline mode from settings.',
-                          style: textTheme.bodySmall,
-                          textAlign: TextAlign.center,
-                        );
-                      }
+                child: AnimatedTextKit(
+                  isRepeatingAnimation: false,
+                  animatedTexts: [
+                    TypewriterAnimatedText(
+                      random,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              FutureBuilder(
+                future:
+                    ref.read(storageProvider.notifier).isDataAvailableLocally(),
+                builder: (ctx, snap) {
+                  if (snap.hasData) {
+                    if (snap.data == false) {
+                      return Text(
+                        'App is set to online mode. To save bandwidth download data and turn on offline mode from settings.',
+                        style: textTheme.bodySmall,
+                        textAlign: TextAlign.center,
+                      );
                     }
-                    return const SizedBox(height: 0, width: 0);
-                  },
-                )
-              ],
-            ),
+                  }
+                  return const SizedBox(height: 0, width: 0);
+                },
+              )
+            ],
           ),
         ),
       ),
