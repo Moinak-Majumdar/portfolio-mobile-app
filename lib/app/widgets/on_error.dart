@@ -24,6 +24,7 @@ class OnError extends StatelessWidget {
                 color: colorScheme.error,
               ),
               softWrap: true,
+              textAlign: TextAlign.center,
             ),
           )
         ],

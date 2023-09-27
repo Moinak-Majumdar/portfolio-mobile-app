@@ -77,7 +77,10 @@ class _ImageCloudState extends ConsumerState<ImageCloud> {
         future: _futureCloud,
         builder: (ctx, snapshot) {
           if (snapshot.hasError) {
-            return OnError(error: snapshot.error.toString());
+            return const OnError(
+              error:
+                  "Oops, Failed to connect with server, Please check your internet connection. :')",
+            );
           }
           if (snapshot.hasData) {
             if (_selectedProject == 'dummy') {

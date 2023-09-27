@@ -2,20 +2,22 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:moinak05_web_dev_dashboard/app/auth/online_auth.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:moinak05_web_dev_dashboard/app/auth/online_auth.dart';
 import 'package:moinak05_web_dev_dashboard/hive_add_doc.dart';
 import 'package:moinak05_web_dev_dashboard/hive_html.dart';
 import 'package:moinak05_web_dev_dashboard/hive_music.dart';
 import 'package:moinak05_web_dev_dashboard/hive_storage.dart';
 import 'package:moinak05_web_dev_dashboard/provider/music.dart';
 import 'firebase_options.dart';
+import 'package:moinak05_web_dev_dashboard/app/utils/splash.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await dotenv.load(fileName: '.env');
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -38,6 +40,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(context, ref) {
     ref.read(audioPlayerStart);
+    FlutterNativeSplash.remove();
 
     return MaterialApp(
       title: '',

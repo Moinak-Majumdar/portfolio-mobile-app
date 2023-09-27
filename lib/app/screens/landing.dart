@@ -38,125 +38,120 @@ class LandingScreen extends ConsumerWidget {
 
     final profile = ref.watch(profileImgProvider);
 
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Dashboard', style: GoogleFonts.pacifico()),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (ctx) => const MusicPlayer()),
-                );
-              },
-              icon: const Icon(Icons.music_note),
-            ),
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (ctx) => const Settings()),
-                );
-              },
-              icon: const Icon(Icons.settings_sharp),
-            ),
-          ],
-        ),
-        drawer: const SideDrawer(),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                'Welcome moinak05',
-                style: GoogleFonts.pacifico(
-                  fontSize: 30,
-                  color: Colors.black,
-                ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Dashboard', style: GoogleFonts.pacifico()),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (ctx) => const MusicPlayer()),
+              );
+            },
+            icon: const Icon(Icons.music_note),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (ctx) => const Settings()),
+              );
+            },
+            icon: const Icon(Icons.settings_sharp),
+          ),
+        ],
+      ),
+      drawer: const SideDrawer(),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Welcome moinak05',
+              style: GoogleFonts.pacifico(
+                fontSize: 30,
+                color: Colors.black,
               ),
-              ClipOval(
-                child: SizedBox.fromSize(
-                  size: const Size.fromRadius(200),
-                  child: ColorFiltered(
-                    colorFilter: const ColorFilter.mode(
-                      Colors.black,
-                      BlendMode.saturation,
-                    ),
-                    child: FutureBuilder(
-                      future: ref
-                          .read(profileImgProvider.notifier)
-                          .isProfileImgAvailable(),
-                      builder: (ctx, snap) {
-                        if (snap.hasData) {
-                          final data = snap.data;
-                          return data != null
-                              ? Image.file(
-                                  data.image,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.asset(
-                                  'assets/image/me.jpg',
-                                  fit: BoxFit.cover,
-                                );
-                        }
-                        if (profile != null) {
-                          return Image.file(
-                            profile.image,
-                            fit: BoxFit.cover,
-                          );
-                        } else {
-                          return Image.asset(
-                            'assets/image/me.jpg',
-                            fit: BoxFit.cover,
-                          );
-                        }
-                      },
-                    ),
+            ),
+            ClipOval(
+              child: SizedBox.fromSize(
+                size: const Size.fromRadius(200),
+                child: ColorFiltered(
+                  colorFilter: const ColorFilter.mode(
+                    Colors.black,
+                    BlendMode.saturation,
+                  ),
+                  child: FutureBuilder(
+                    future: ref
+                        .read(profileImgProvider.notifier)
+                        .isProfileImgAvailable(),
+                    builder: (ctx, snap) {
+                      if (snap.hasData) {
+                        final data = snap.data;
+                        return data != null
+                            ? Image.file(
+                                data.image,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                'assets/image/me.jpg',
+                                fit: BoxFit.cover,
+                              );
+                      }
+                      if (profile != null) {
+                        return Image.file(
+                          profile.image,
+                          fit: BoxFit.cover,
+                        );
+                      } else {
+                        return Image.asset(
+                          'assets/image/me.jpg',
+                          fit: BoxFit.cover,
+                        );
+                      }
+                    },
                   ),
                 ),
               ),
-              DefaultTextStyle(
-                style: GoogleFonts.caveat(
-                  fontSize: 28,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-                child: AnimatedTextKit(
-                  isRepeatingAnimation: false,
-                  animatedTexts: [
-                    TypewriterAnimatedText(
-                      random,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+            ),
+            DefaultTextStyle(
+              style: GoogleFonts.caveat(
+                fontSize: 28,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
-              FutureBuilder(
-                future:
-                    ref.read(storageProvider.notifier).isDataAvailableLocally(),
-                builder: (ctx, snap) {
-                  if (snap.hasData) {
-                    if (snap.data == false) {
-                      return Text(
-                        'App is set to online mode. To save bandwidth download data and turn on offline mode from settings.',
-                        style: textTheme.bodySmall,
-                        textAlign: TextAlign.center,
-                      );
-                    }
+              child: AnimatedTextKit(
+                isRepeatingAnimation: false,
+                animatedTexts: [
+                  TypewriterAnimatedText(
+                    random,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+            FutureBuilder(
+              future:
+                  ref.read(storageProvider.notifier).isDataAvailableLocally(),
+              builder: (ctx, snap) {
+                if (snap.hasData) {
+                  if (snap.data == false) {
+                    return Text(
+                      'App is set to online mode. To save bandwidth download data and turn on offline mode from settings.',
+                      style: textTheme.bodySmall,
+                      textAlign: TextAlign.center,
+                    );
                   }
-                  return const SizedBox(height: 0, width: 0);
-                },
-              )
-            ],
-          ),
+                }
+                return const SizedBox(height: 0, width: 0);
+              },
+            )
+          ],
         ),
       ),
     );

@@ -65,7 +65,10 @@ class _PhotographyScreenState extends ConsumerState<PhotographyScreen> {
         future: _futurePhotography,
         builder: (ctx, snapshot) {
           if (snapshot.hasError) {
-            return OnError(error: snapshot.error.toString());
+            return const OnError(
+              error:
+                  "Oops, Failed to connect with server, Please check your internet connection. :')",
+            );
           }
           if (snapshot.hasData) {
             final data = _photographyData!.data;

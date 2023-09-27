@@ -2,9 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:moinak05_web_dev_dashboard/app/auth/auth_error.dart';
-import 'package:moinak05_web_dev_dashboard/app/auth/splash.dart';
 import 'package:moinak05_web_dev_dashboard/app/screens/landing.dart';
 
 import 'package:local_auth/local_auth.dart';
@@ -18,6 +15,7 @@ class Tire2Auth extends ConsumerStatefulWidget {
 
 class _Tire2AuthState extends ConsumerState<Tire2Auth> {
   late final LocalAuthentication auth;
+
   bool _isLocalAuthSupported = false;
 
   @override
@@ -38,35 +36,13 @@ class _Tire2AuthState extends ConsumerState<Tire2Auth> {
     )
         .then(
       (value) {
-        if (value) {
-          Timer(
-            const Duration(seconds: 2),
-            () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (ctx) => const LandingScreen(),
-                ),
-              );
-            },
-          );
-        } else {
+        if (!value) {
           _onLocalAuthFailed();
         }
       },
     ).catchError(
       (e) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (ctx) => const AuthError(
-              splash:
-                  'Biometric authentication failed use email and password authentication.',
-            ),
-          ),
-        );
-        throw Exception(e);
+        _onLocalAuthFailed();
       },
     );
     super.initState();
@@ -74,26 +50,7 @@ class _Tire2AuthState extends ConsumerState<Tire2Auth> {
 
   @override
   Widget build(context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
-      child: Scaffold(
-          body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer,
-              Theme.of(context).colorScheme.surface,
-              Theme.of(context).colorScheme.surface,
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: const Splash(),
-      )),
-    );
+    return const LandingScreen();
   }
 
   Future<void> _localReAuthenticate() async {
@@ -105,34 +62,13 @@ class _Tire2AuthState extends ConsumerState<Tire2Auth> {
         biometricOnly: false,
       ),
     )
-        .then((value) {
-      if (value) {
-        Navigator.pop(context);
-        Timer(
-          const Duration(seconds: 2),
-          () {
-            Navigator.pop(context);
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (ctx) => const LandingScreen(),
-              ),
-            );
-          },
-        );
-      }
-    }).catchError((e) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (ctx) => const AuthError(
-            splash:
-                'Biometric authentication failed use email and password authentication.',
-          ),
-        ),
-      );
-      throw Exception(e);
-    });
+        .then(
+      (value) {
+        if (value) {
+          Navigator.pop(context);
+        }
+      },
+    );
   }
 
   void _onLocalAuthFailed() {
@@ -172,12 +108,7 @@ class _Tire2AuthState extends ConsumerState<Tire2Auth> {
             else
               TextButton.icon(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (ctx) => const LandingScreen(),
-                    ),
-                  );
+                  Navigator.pop(context);
                 },
                 icon: const Icon(Icons.gavel),
                 label: const Text('Force open'),

@@ -85,7 +85,10 @@ class _AllProjectsState extends ConsumerState<AllDocScreen> {
         future: _futureDoc,
         builder: (ctx, snapshot) {
           if (snapshot.hasError) {
-            return OnError(error: snapshot.error.toString());
+            return const OnError(
+              error:
+                  "Oops, Failed to connect with server, Please check your internet connection. :')",
+            );
           }
 
           if (snapshot.hasData) {

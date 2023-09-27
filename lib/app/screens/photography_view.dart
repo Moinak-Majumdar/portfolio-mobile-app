@@ -56,8 +56,12 @@ class _ViewPhotographyState extends ConsumerState<ViewPhotography> {
                   fit: BoxFit.fill,
                 )
               : CachedNetworkImage(
-                  placeholder: (context, url) =>
-                      Image.asset('assets/image/photography.gif'),
+                  placeholder: (context, url) => Image.asset(
+                    'assets/image/photography.gif',
+                    height: double.infinity,
+                    width: double.infinity,
+                    fit: BoxFit.fill,
+                  ),
                   errorWidget: (context, url, error) => Center(
                     child: Text(
                       'Failed to load image from network !',
