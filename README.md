@@ -30,7 +30,7 @@ My first flutter project after completion of flutter <a href="https://www.udemy.
 ### Backend
  Backend of this app is created with express and mongodb (mongoose).
 
-Live : <a href="https://github.com/Moinak-Majumdar/portfolio-server">git repository</a>
+visit : <a href="https://github.com/Moinak-Majumdar/portfolio-server">git repository</a>
 
 ### Thanks to
 
