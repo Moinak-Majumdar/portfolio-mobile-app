@@ -14,12 +14,14 @@ class FlutterProjectModel {
     required this.status,
     required this.img,
     required this.badge,
+    required this.badgeNames,
     required this.libraries,
     required this.v,
   });
 
   final String id, name, slug, status, intro, description, release, gitRepo;
-  final List<String> libraries, badge;
+  // badge = badgeName.svg
+  final List<String> libraries, badge, badgeNames;
   final ImportExport cover;
   final List<ImportExport> img;
   final int v;
@@ -35,7 +37,7 @@ class FlutterProjectServerModel {
     for (final project in json) {
       final List<ImportExport> img = [];
       final List<String> libraries = [];
-      final List<String> badge = [];
+      final List<String> badge = [], badgeNames = [];
 
       for (final item in project['img']) {
         final storageRef = FirebaseStorage.instance.refFromURL(item);
@@ -53,6 +55,7 @@ class FlutterProjectServerModel {
       }
       for (int i = 0; i < project['badge'].length; i++) {
         badge.add(project['badge'][i]);
+        badgeNames.add(project['badge'][i].toString().split('.')[0]);
       }
 
       final storageRef = FirebaseStorage.instance.refFromURL(project["cover"]);
@@ -76,6 +79,7 @@ class FlutterProjectServerModel {
           status: project['status'],
           img: img,
           badge: badge,
+          badgeNames: badgeNames,
           libraries: libraries,
           v: project['__v'],
         ),

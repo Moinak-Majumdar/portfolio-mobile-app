@@ -17,7 +17,7 @@ class HiveFlutterCacheAdapter extends TypeAdapter<HiveFlutterCache> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveFlutterCache(
-      badge: (fields[9] as List).cast<String>(),
+      badgeNames: (fields[9] as List).cast<String>(),
       coverImg: fields[5] as String,
       coverImgName: fields[6] as String,
       description: fields[4] as String,
@@ -56,7 +56,7 @@ class HiveFlutterCacheAdapter extends TypeAdapter<HiveFlutterCache> {
       ..writeByte(8)
       ..write(obj.imgNames)
       ..writeByte(9)
-      ..write(obj.badge)
+      ..write(obj.badgeNames)
       ..writeByte(10)
       ..write(obj.slug)
       ..writeByte(11)

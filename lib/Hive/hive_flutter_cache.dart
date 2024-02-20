@@ -5,7 +5,7 @@ part 'hive_flutter_cache.g.dart';
 @HiveType(typeId: 3)
 class HiveFlutterCache {
   HiveFlutterCache({
-    required this.badge,
+    required this.badgeNames,
     required this.coverImg,
     required this.coverImgName,
     required this.description,
@@ -39,7 +39,7 @@ class HiveFlutterCache {
   @HiveField(8)
   final List<String> imgNames;
   @HiveField(9)
-  final List<String> badge;
+  final List<String> badgeNames;
   @HiveField(10)
   final String slug;
   @HiveField(11)

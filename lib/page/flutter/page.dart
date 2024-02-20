@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:portfolio/controller/db.dart';
 import 'package:portfolio/models/flutter_project.dart';
-import 'package:portfolio/page/flutter/add_flutter.dart';
+import 'package:portfolio/page/flutter/add.dart';
 import 'package:portfolio/page/flutter/details.dart';
 import 'package:portfolio/utils/on_error.dart';
 import 'package:portfolio/utils/on_load.dart';

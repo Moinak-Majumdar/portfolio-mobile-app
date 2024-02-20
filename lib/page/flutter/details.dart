@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:portfolio/models/flutter_project.dart';
+import 'package:portfolio/page/flutter/update.dart';
 import 'package:portfolio/widget/network_img_view.dart';
 import 'package:portfolio/widget/neumorphism.dart';
 import 'package:portfolio/widget/tailwind_play_content.dart';
@@ -20,6 +21,15 @@ class FlutterDetails extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(data.name),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => UpdateFlutter(data: data)),
+            ),
+            icon: const Icon(FontAwesomeIcons.penToSquare),
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -86,7 +96,7 @@ class FlutterDetails extends StatelessWidget {
                   ),
                 ],
               ),
-              // hl3 5.status.
+              // hl3 4.status.
               Padding(
                 padding: const EdgeInsets.fromLTRB(14, 12, 0, 12),
                 child: TitledText(
@@ -98,6 +108,18 @@ class FlutterDetails extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              // hl3 5. Libraries.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 8, 0, 12),
+                child: TitledText(title: 'Packages', children: [
+                  TextSpan(
+                    text: data.libraries
+                        .toString()
+                        .substring(1, data.libraries.toString().length - 1),
+                    style: textTheme.titleMedium,
+                  )
+                ]),
               ),
               // hl3 6.Tech.
               SizedBox(
@@ -127,7 +149,7 @@ class FlutterDetails extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          data.badge[index].split('.')[0],
+                          data.badgeNames[index],
                           style: const TextStyle(color: Colors.white70),
                         )
                       ],

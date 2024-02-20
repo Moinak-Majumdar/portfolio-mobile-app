@@ -293,6 +293,7 @@ class _AddFlutterState extends State<AddFlutter> {
           projectName: name.text,
           url: "",
         );
+    final badge = flutter_manager.badgeNameToBadge(badgeNames: badgeNames);
     await flutter_manager.saveFlutterData(
       context: context,
       onPageLeave: onPageLeave,
@@ -307,8 +308,9 @@ class _AddFlutterState extends State<AddFlutter> {
         slug: slug,
         status: status,
         img: screenshots,
-        badge: badgeNames,
-        libraries: [libraries.text].toList(),
+        badge: badge,
+        badgeNames: badgeNames,
+        libraries: libraries.text.replaceAll(" ", '').split(','),
         v: 0,
       ),
     );
@@ -333,6 +335,7 @@ class _AddFlutterState extends State<AddFlutter> {
     final status = statusSwitch ? "completed" : "under development";
     final String slug = name.text.toLowerCase().replaceAll(' ', '');
     final cover = selectedCoverImg!;
+    final badge = flutter_manager.badgeNameToBadge(badgeNames: badgeNames);
 
     final response = await flutter_manager.addFlutterDataToMongo(
       FlutterProjectModel(
@@ -346,8 +349,9 @@ class _AddFlutterState extends State<AddFlutter> {
         slug: slug,
         status: status,
         img: screenshots,
-        badge: badgeNames,
-        libraries: [libraries.text].toList(),
+        badge: badge,
+        badgeNames: badgeNames,
+        libraries: libraries.text.replaceAll(" ", '').split(','),
         v: 0,
       ),
     );
@@ -373,7 +377,7 @@ class _AddFlutterState extends State<AddFlutter> {
       description = data.description;
       intro.text = data.intro;
       release.text = data.release;
-      badgeNames = data.badge;
+      badgeNames = data.badgeNames;
       selectedCoverImg = data.cover;
       screenshots = data.img;
       statusSwitch = data.status == "completed" ? true : false;

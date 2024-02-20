@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,6 +9,14 @@ import 'package:portfolio/Hive/hive_flutter_cache.dart';
 import 'package:portfolio/controller/db.dart';
 import 'package:portfolio/controller/import_export.dart';
 import 'package:portfolio/models/flutter_project.dart';
+
+List<String> badgeNameToBadge({required List<String> badgeNames}) {
+  final List<String> badge = [];
+  for (final bn in badgeNames) {
+    badge.add('$bn.svg');
+  }
+  return badge;
+}
 
 const _boxName = "flutter-cache";
 const _boxId = "saved-data";
@@ -92,7 +102,8 @@ Future<FlutterProjectModel> getFlutterDataFromMemory() async {
       status: data.status,
       img: img,
       libraries: data.libraries,
-      badge: data.badge,
+      badgeNames: data.badgeNames,
+      badge: badgeNameToBadge(badgeNames: data.badgeNames),
       v: 0,
     );
   } else {
@@ -108,6 +119,7 @@ Future<FlutterProjectModel> getFlutterDataFromMemory() async {
       status: "",
       img: img,
       badge: [],
+      badgeNames: [],
       libraries: [],
       v: 0,
     );
@@ -119,12 +131,9 @@ Future<FlutterServerResponse> addFlutterDataToMongo(
   final dio = Dio();
   final dbc = Get.put(DbController());
 
-  final img = [], badge = [];
+  final img = [];
   for (final i in data.img) {
     img.add(i.url);
-  }
-  for (final item in data.badge) {
-    badge.add('$item.svg');
   }
 
   try {
@@ -142,7 +151,7 @@ Future<FlutterServerResponse> addFlutterDataToMongo(
         "description": data.description,
         "cover": data.cover.url,
         "img": img,
-        "badge": badge,
+        "badge": data.badge,
         "libraries": data.libraries
       },
     );
@@ -152,6 +161,64 @@ Future<FlutterServerResponse> addFlutterDataToMongo(
       type: FlutterServerResType.success,
     );
   } catch (e) {
+    if (e is DioException) {
+      if (e.type == DioExceptionType.badResponse && e.response != null) {
+        return FlutterServerResponse(
+          message:
+              'Failed with status code: ${e.response!.statusCode} \n${e.response!.data['error']}',
+          type: FlutterServerResType.error,
+        );
+      } else {
+        return FlutterServerResponse(
+          message: e.message.toString(),
+          type: FlutterServerResType.error,
+        );
+      }
+    } else {
+      return FlutterServerResponse(
+        message: e.toString(),
+        type: FlutterServerResType.error,
+      );
+    }
+  }
+}
+
+Future<FlutterServerResponse> updateFlutterDataAtMongo(
+    FlutterProjectModel data) async {
+  final dio = Dio();
+  final dbc = Get.put(DbController());
+
+  final List<String> img = [];
+  for (final i in data.img) {
+    img.add(i.url);
+  }
+
+  try {
+    await dio.put(
+      '${dotenv.env['SERVER']!}/updateFlutter',
+      queryParameters: {...dbc.apiQueryParamBase()},
+      data: {
+        "apiKey": dotenv.env['DB_KEY'],
+        "name": data.name,
+        "status": data.status,
+        "intro": data.intro,
+        "release": data.release,
+        "gitRepo": data.gitRepo,
+        "slug": data.slug,
+        "description": data.description,
+        "cover": data.cover.url,
+        "img": img,
+        "libraries": data.libraries,
+        "badge": data.badge,
+        "docId": data.id,
+      },
+    );
+    return FlutterServerResponse(
+      message: "Flutter project : ${data.name} is updated successfully.",
+      type: FlutterServerResType.success,
+    );
+  } catch (e) {
+    print(e);
     if (e is DioException) {
       if (e.type == DioExceptionType.badResponse && e.response != null) {
         return FlutterServerResponse(
@@ -230,7 +297,7 @@ Future<void> _hiveSave(FlutterProjectModel data) async {
       name: data.name,
       slug: data.slug,
       status: data.status,
-      badge: data.badge,
+      badgeNames: data.badgeNames,
       libraries: data.libraries,
     ),
   );
