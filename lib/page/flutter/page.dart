@@ -50,30 +50,32 @@ class Flutter extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: FutureBuilder(
-          future: _fetchAllFlutterProject(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final data = snapshot.data;
+      body: Scrollbar(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: FutureBuilder(
+            future: _fetchAllFlutterProject(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final data = snapshot.data;
 
-              return ListView.builder(
-                itemCount: data!.allFlutter.length,
-                itemBuilder: (context, index) {
-                  return _FlutterProjectCard(item: data.allFlutter[index]);
-                },
-              );
-            }
+                return ListView.builder(
+                  itemCount: data!.allFlutter.length,
+                  itemBuilder: (context, index) {
+                    return _FlutterProjectCard(item: data.allFlutter[index]);
+                  },
+                );
+              }
 
-            if (snapshot.hasError) {
-              final error = snapshot.error.toString();
+              if (snapshot.hasError) {
+                final error = snapshot.error.toString();
 
-              return OnError(error: error);
-            }
+                return OnError(error: error);
+              }
 
-            return const OnLoad(msg: 'Fetching all flutter project');
-          },
+              return const OnLoad(msg: 'Fetching all flutter project');
+            },
+          ),
         ),
       ),
     );

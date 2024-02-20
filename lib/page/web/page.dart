@@ -50,30 +50,32 @@ class Web extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: FutureBuilder(
-          future: _fetchAllWebProject(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final data = snapshot.data;
+      body: Scrollbar(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: FutureBuilder(
+            future: _fetchAllWebProject(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final data = snapshot.data;
 
-              return ListView.builder(
-                itemCount: data!.allWeb.length,
-                itemBuilder: (context, index) {
-                  return _WebProjectCard(item: data.allWeb[index]);
-                },
-              );
-            }
+                return ListView.builder(
+                  itemCount: data!.allWeb.length,
+                  itemBuilder: (context, index) {
+                    return _WebProjectCard(item: data.allWeb[index]);
+                  },
+                );
+              }
 
-            if (snapshot.hasError) {
-              final error = snapshot.error.toString();
+              if (snapshot.hasError) {
+                final error = snapshot.error.toString();
 
-              return OnError(error: error);
-            }
+                return OnError(error: error);
+              }
 
-            return const OnLoad(msg: 'Fetching all web project');
-          },
+              return const OnLoad(msg: 'Fetching all web project');
+            },
+          ),
         ),
       ),
     );

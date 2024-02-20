@@ -51,7 +51,6 @@ class _PlaylistState extends State<Playlist> {
                 ),
                 Expanded(
                   child: Scrollbar(
-                    thickness: 2,
                     child: SingleChildScrollView(
                       child: Column(
                         children: [

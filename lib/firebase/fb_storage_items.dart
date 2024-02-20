@@ -6,6 +6,7 @@ import 'package:portfolio/controller/import_export.dart';
 import 'package:portfolio/models/fb_storage.dart';
 import 'package:portfolio/utils/on_error.dart';
 import 'package:portfolio/utils/on_load.dart';
+import 'package:portfolio/widget/neumorphism.dart';
 
 class FbStorageItems extends StatelessWidget {
   const FbStorageItems({super.key, required this.root});
@@ -21,67 +22,69 @@ class FbStorageItems extends StatelessWidget {
       appBar: AppBar(
         title: Text(root),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: FutureBuilder(
-          future: fetchFbStorageItem(root),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final data = snapshot.data;
+      body: Scrollbar(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: FutureBuilder(
+            future: fetchFbStorageItem(root),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final data = snapshot.data;
 
-              return ListView.builder(
-                itemCount: data!.length,
-                itemBuilder: (context, index) {
-                  final currentItem = data[index];
+                return ListView.builder(
+                  itemCount: data!.length,
+                  itemBuilder: (context, index) {
+                    final currentItem = data[index];
 
-                  return ListTile(
-                    title:
-                        Text(currentItem.imgName, style: textTheme.titleMedium),
-                    subtitle: Text(
-                      '${currentItem.url.substring(81, 120)} ...',
-                      style: textTheme.bodySmall!.copyWith(
-                        color: Colors.white54,
-                      ),
-                    ),
-                    trailing: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: CachedNetworkImage(
-                        imageUrl: currentItem.url,
-                        fit: BoxFit.cover,
-                        errorWidget: (context, url, error) => const Icon(
-                          Icons.error_outline_rounded,
-                          size: 32,
-                          color: Colors.red,
-                        ),
-                        placeholder: (context, url) => const Icon(
-                          Icons.loop,
-                          size: 32,
-                          color: Colors.white12,
+                    return NeuListTile(
+                      title: Text(currentItem.imgName,
+                          style: textTheme.titleMedium),
+                      subtitle: Text(
+                        '${currentItem.url.substring(81, 120)} ...',
+                        style: textTheme.bodySmall!.copyWith(
+                          color: Colors.white54,
                         ),
                       ),
-                    ),
-                    onTap: () => showDialog(
-                      context: context,
-                      builder: (context) => exportDialog(
-                        item: currentItem,
-                        root: root,
-                        textTheme: textTheme,
-                        colorScheme: colorScheme,
+                      trailing: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: CachedNetworkImage(
+                          imageUrl: currentItem.url,
+                          fit: BoxFit.cover,
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.error_outline_rounded,
+                            size: 32,
+                            color: Colors.red,
+                          ),
+                          placeholder: (context, url) => const Icon(
+                            Icons.loop,
+                            size: 32,
+                            color: Colors.white12,
+                          ),
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
-            }
+                      onTap: () => showDialog(
+                        context: context,
+                        builder: (context) => exportDialog(
+                          item: currentItem,
+                          root: root,
+                          textTheme: textTheme,
+                          colorScheme: colorScheme,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
 
-            if (snapshot.hasError) {
-              final error = snapshot.error.toString();
+              if (snapshot.hasError) {
+                final error = snapshot.error.toString();
 
-              return OnError(error: error);
-            }
+                return OnError(error: error);
+              }
 
-            return OnLoad(msg: 'Fetching $root ...');
-          },
+              return OnLoad(msg: 'Fetching $root ...');
+            },
+          ),
         ),
       ),
     );

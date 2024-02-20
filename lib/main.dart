@@ -104,5 +104,11 @@ ThemeData _getThemeData() {
     sliderTheme: const SliderThemeData().copyWith(
       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0),
     ),
+    scrollbarTheme: const ScrollbarThemeData().copyWith(
+      thickness: const MaterialStatePropertyAll(2),
+      thumbColor: const MaterialStatePropertyAll(Colors.white30),
+      radius: const Radius.circular(8),
+      trackColor: const MaterialStatePropertyAll(Colors.transparent),
+    ),
   );
 }

@@ -58,61 +58,63 @@ class Photography extends StatelessWidget {
               icon: const Icon(Icons.upload))
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: FutureBuilder(
-          future: fetchAllPhotography(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final data = snapshot.data!;
+      body: Scrollbar(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: FutureBuilder(
+            future: fetchAllPhotography(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final data = snapshot.data!;
 
-              return GridView.custom(
-                gridDelegate: SliverQuiltedGridDelegate(
-                  crossAxisCount: 4,
-                  pattern: const [
-                    QuiltedGridTile(4, 2),
-                    QuiltedGridTile(3, 2),
-                    QuiltedGridTile(4, 2),
-                    QuiltedGridTile(4, 2),
-                  ],
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                  repeatPattern: QuiltedGridRepeatPattern.inverted,
-                ),
-                childrenDelegate: SliverChildBuilderDelegate(
-                  childCount: data.length,
-                  (context, index) => NeuBox(
-                    padding: const EdgeInsets.all(8),
-                    margin: const EdgeInsets.all(8),
-                    borderRadius: 20,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: CachedNetworkImage(
-                        imageUrl: data[index].url,
-                        fit: BoxFit.cover,
-                        errorWidget: (context, url, error) => const Icon(
-                          Icons.error_outline_rounded,
-                          size: 32,
-                          color: Colors.red,
-                        ),
-                        placeholder: (context, url) => const Icon(
-                          Icons.photo,
-                          size: 32,
-                          color: Colors.white60,
+                return GridView.custom(
+                  gridDelegate: SliverQuiltedGridDelegate(
+                    crossAxisCount: 4,
+                    pattern: const [
+                      QuiltedGridTile(4, 2),
+                      QuiltedGridTile(3, 2),
+                      QuiltedGridTile(4, 2),
+                      QuiltedGridTile(4, 2),
+                    ],
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    repeatPattern: QuiltedGridRepeatPattern.inverted,
+                  ),
+                  childrenDelegate: SliverChildBuilderDelegate(
+                    childCount: data.length,
+                    (context, index) => NeuBox(
+                      padding: const EdgeInsets.all(8),
+                      margin: const EdgeInsets.all(8),
+                      borderRadius: 20,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: CachedNetworkImage(
+                          imageUrl: data[index].url,
+                          fit: BoxFit.cover,
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.error_outline_rounded,
+                            size: 32,
+                            color: Colors.red,
+                          ),
+                          placeholder: (context, url) => const Icon(
+                            Icons.photo,
+                            size: 32,
+                            color: Colors.white60,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }
+                );
+              }
 
-            if (snapshot.hasError) {
-              return OnError(error: snapshot.error.toString());
-            }
+              if (snapshot.hasError) {
+                return OnError(error: snapshot.error.toString());
+              }
 
-            return const OnLoad(msg: 'Getting Photography...');
-          },
+              return const OnLoad(msg: 'Getting Photography...');
+            },
+          ),
         ),
       ),
     );

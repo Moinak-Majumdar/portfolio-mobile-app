@@ -56,49 +56,51 @@ class ProjectImage extends StatelessWidget {
           )
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
-        child: Obx(
-          () {
-            if (pic.selectedProject.value != '') {
-              final data = pic.allImages;
-              final images = data[pic.selectedProject.value];
+      body: Scrollbar(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
+          child: Obx(
+            () {
+              if (pic.selectedProject.value != '') {
+                final data = pic.allImages;
+                final images = data[pic.selectedProject.value];
 
-              return ListView.builder(
-                itemCount: images!.length,
-                itemBuilder: (context, index) {
-                  final current = images[index];
+                return ListView.builder(
+                  itemCount: images!.length,
+                  itemBuilder: (context, index) {
+                    final current = images[index];
 
-                  return _ProjectImgCard(item: current);
+                    return _ProjectImgCard(item: current);
+                  },
+                );
+              }
+
+              final dbc = Get.put(DbController());
+
+              return FutureBuilder(
+                future: pic.fetchAllProjectImg(dbc.apiQueryParamBase()),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return const Center(
+                      child: Text(
+                        'Please select a project from 3 dot menu.',
+                        style: TextStyle(fontSize: 20),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    final error = snapshot.error.toString();
+
+                    return OnError(error: error);
+                  }
+
+                  return const OnLoad(msg: 'Fetching all project images');
                 },
               );
-            }
-
-            final dbc = Get.put(DbController());
-
-            return FutureBuilder(
-              future: pic.fetchAllProjectImg(dbc.apiQueryParamBase()),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return const Center(
-                    child: Text(
-                      'Please select a project from 3 dot menu.',
-                      style: TextStyle(fontSize: 20),
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                }
-
-                if (snapshot.hasError) {
-                  final error = snapshot.error.toString();
-
-                  return OnError(error: error);
-                }
-
-                return const OnLoad(msg: 'Fetching all project images');
-              },
-            );
-          },
+            },
+          ),
         ),
       ),
     );
