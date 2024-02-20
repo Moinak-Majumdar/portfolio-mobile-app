@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart';
@@ -217,19 +218,19 @@ class _SongPicker extends StatefulWidget {
 
 class _SongPickerState extends State<_SongPicker> {
   File? selectedSong;
+  bool isPlaying = false;
 
   void pickSong() async {
     FilePickerResult? result =
         await FilePicker.platform.pickFiles(type: FileType.audio);
 
     if (result != null) {
-      setState(() {
-        selectedSong = File(result.files.single.path!);
-      });
+      setState(() => selectedSong = File(result.files.single.path!));
       if (selectedSong != null) {
         widget.player.setFilePath(selectedSong!.path);
         widget.player.play();
         widget.onSongPick(selectedSong!);
+        setState(() => isPlaying = true);
       }
     } else {
       return;
@@ -258,16 +259,25 @@ class _SongPickerState extends State<_SongPicker> {
             : () {
                 if (widget.player.playing) {
                   widget.player.stop();
+                  setState(() => isPlaying = false);
                 } else {
                   widget.player.play();
+                  setState(() => isPlaying = true);
                 }
               },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.black,
-          disabledBackgroundColor: Colors.white24,
-        ),
-        child: const Text("Test"),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent),
+        child: isPlaying
+            ? Image.asset(
+                'assets/image/songPlaying.gif',
+                width: 20,
+                height: 30,
+                fit: BoxFit.cover,
+              )
+            : const Icon(
+                FontAwesomeIcons.circlePlay,
+                size: 28,
+                color: Colors.green,
+              ),
       ),
     );
   }

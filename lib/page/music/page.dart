@@ -36,7 +36,7 @@ class MusicPlayer extends GetView<MusicController> {
           ),
         ],
       ),
-      endDrawer: controller.playList.isNotEmpty ? const Playlist() : null,
+      endDrawer: const Playlist(),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
         child: Obx(
