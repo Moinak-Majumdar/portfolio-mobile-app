@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:portfolio/utils/get_snack.dart';
 import 'package:portfolio/widget/submit_button.dart';
@@ -19,18 +19,12 @@ class _FbPhotographyUploaderState extends State<FbPhotographyUploader> {
   bool _isLoading = false;
 
   void _pickPicture() async {
-    final ip = ImagePicker();
-    XFile? pikedImage;
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(type: FileType.image);
 
-    pikedImage = await ip.pickImage(
-      source: ImageSource.gallery,
-    );
-
-    if (pikedImage == null) {
-      return;
-    }
+    if (result == null) return;
     setState(() {
-      _selectedPhotography = File(pikedImage!.path);
+      _selectedPhotography = File(result.files.single.path!);
     });
   }
 

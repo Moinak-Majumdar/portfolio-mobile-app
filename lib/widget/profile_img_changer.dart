@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:portfolio/controller/profile_img.dart';
@@ -17,29 +17,24 @@ class ProfileImgChanger extends StatefulWidget {
 
 class _ProfileImgChangerState extends State<ProfileImgChanger> {
   File? _selectedImage;
-  late ImagePicker _ip;
 
   final pc = Get.put(ProfileImgController());
 
   @override
   void initState() {
-    _ip = ImagePicker();
     if (pc.isProfileImgAvailable.value) {
       _selectedImage = File(pc.profileImgPath.value);
     }
     super.initState();
   }
 
-  void pickPicture(ImageSource source) async {
-    XFile? pikedImage;
+  void pickPicture() async {
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(type: FileType.image);
 
-    pikedImage = await _ip.pickImage(source: source);
-
-    if (pikedImage == null) {
-      return;
-    }
+    if (result == null) return;
     setState(() {
-      _selectedImage = File(pikedImage!.path);
+      _selectedImage = File(result.files.single.path!);
     });
   }
 
@@ -125,44 +120,16 @@ class _ProfileImgChangerState extends State<ProfileImgChanger> {
             ),
             child: _selectedImage == null
                 ? Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TextButton.icon(
-                          onPressed: () {
-                            pickPicture(ImageSource.camera);
-                          },
-                          icon: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.white70,
-                          ),
-                          label: const Text(
-                            'Camera',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        const Text(
-                          '/',
-                          style: TextStyle(
-                            fontSize: 30,
-                            color: Colors.white70,
-                          ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () {
-                            pickPicture(ImageSource.gallery);
-                          },
-                          icon: const Icon(
-                            Icons.photo,
-                            color: Colors.white70,
-                          ),
-                          label: const Text(
-                            'Gallery',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
+                    child: TextButton.icon(
+                      onPressed: pickPicture,
+                      icon: const Icon(
+                        Icons.upload_file,
+                        color: Colors.white70,
+                      ),
+                      label: const Text(
+                        'Select Picture',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   )
                 : Stack(
@@ -187,11 +154,7 @@ class _ProfileImgChangerState extends State<ProfileImgChanger> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _selectedImage = null;
-                                  });
-                                },
+                                onPressed: pickPicture,
                                 child: Text(
                                   'Change',
                                   style: textTheme.titleMedium!.copyWith(
