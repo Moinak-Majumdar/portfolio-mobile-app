@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:portfolio/firebase/fb_storage_items.dart';
 import 'package:portfolio/models/fb_storage.dart';
@@ -10,6 +12,14 @@ class FbStorage extends StatelessWidget {
   @override
   Widget build(context) {
     final textTheme = Theme.of(context).textTheme;
+    final colors = [
+      Colors.tealAccent,
+      Colors.lightBlue,
+      Colors.pink,
+      Colors.purple,
+      Colors.amber,
+    ];
+    final random = Random();
 
     return Scaffold(
       appBar: AppBar(
@@ -33,10 +43,10 @@ class FbStorage extends StatelessWidget {
                       currentDirName,
                       style: textTheme.titleMedium,
                     ),
-                    leading: const Icon(
+                    leading: Icon(
                       Icons.folder,
                       size: 32,
-                      color: Colors.white38,
+                      color: colors[random.nextInt(colors.length)],
                     ),
                     onTap: () => Navigator.push(
                       context,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:portfolio/firebase/fb_photography_uploader.dart';
-import 'package:portfolio/firebase/fb_project_img_uplodader.dart';
+import 'package:portfolio/firebase/fb_project_img_uploader.dart';
 
 class FbUpload extends StatelessWidget {
   const FbUpload({super.key});
@@ -14,7 +13,7 @@ class FbUpload extends StatelessWidget {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: Text('Firebae Upload', style: GoogleFonts.comicNeue()),
+          title: const Text('Firebase Upload'),
           bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.camera_alt)),

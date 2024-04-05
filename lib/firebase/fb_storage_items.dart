@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -18,6 +19,8 @@ class FbStorageItems extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
+    final iec = Get.put(ImportExportController());
+
     return Scaffold(
       appBar: AppBar(
         title: Text(root),
@@ -35,6 +38,17 @@ class FbStorageItems extends StatelessWidget {
                   itemCount: data!.length,
                   itemBuilder: (context, index) {
                     final currentItem = data[index];
+                    final model = root == 'photography'
+                        ? ImportExport.photography(
+                            name: currentItem.imgName,
+                            url: currentItem.url,
+                          )
+                        : ImportExport.projectImage(
+                            name: currentItem.imgName,
+                            url: currentItem.url,
+                            projectName: currentItem.projectName,
+                          );
+                    final alreadyExported = iec.alreadyExported(model);
 
                     return NeuListTile(
                       title: Text(currentItem.imgName,
@@ -62,15 +76,18 @@ class FbStorageItems extends StatelessWidget {
                           ),
                         ),
                       ),
-                      onTap: () => showDialog(
-                        context: context,
-                        builder: (context) => exportDialog(
-                          item: currentItem,
-                          root: root,
-                          textTheme: textTheme,
-                          colorScheme: colorScheme,
-                        ),
-                      ),
+                      highlight: alreadyExported,
+                      onTap: alreadyExported
+                          ? null
+                          : () => showDialog(
+                                context: context,
+                                builder: (context) => exportDialog(
+                                  model: model,
+                                  root: root,
+                                  textTheme: textTheme,
+                                  colorScheme: colorScheme,
+                                ),
+                              ),
                     );
                   },
                 );
@@ -92,45 +109,36 @@ class FbStorageItems extends StatelessWidget {
 }
 
 Widget exportDialog({
-  required FbStorageItemModel item,
+  required ImportExport model,
   required String root,
   required TextTheme textTheme,
   required ColorScheme colorScheme,
 }) {
-  return AlertDialog(
+  return CupertinoAlertDialog(
     title: Text(
-      item.imgName,
-      style: textTheme.headlineSmall!.copyWith(color: colorScheme.primary),
+      model.name,
+      style: textTheme.titleLarge!.copyWith(color: colorScheme.primary),
+      textAlign: TextAlign.start,
     ),
-    content: Text(
-      'Export url : ${item.url.substring(81, 120)} ...',
-      style: const TextStyle(color: Colors.white70),
+    content: Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Text(
+        'Export url : ${model.url.substring(81, 120)} ...',
+        style: const TextStyle(color: Colors.white70),
+        textAlign: TextAlign.start,
+      ),
     ),
     actions: [
       Obx(
         () {
           final iec = Get.put(ImportExportController());
 
-          final model = root == 'photography'
-              ? ImportExport.photography(
-                  name: item.imgName,
-                  url: item.url,
-                )
-              : ImportExport.projectImage(
-                  name: item.imgName,
-                  url: item.url,
-                  projectName: item.projectName,
-                );
-          final alreadyExported = iec.alreadyExported(model);
-
-          return ElevatedButton.icon(
-            onPressed: alreadyExported ? null : () => iec.export(model),
-            icon: alreadyExported
-                ? const Icon(Icons.done_all)
-                : const Icon(
-                    FontAwesomeIcons.forward,
-                    size: 18,
-                  ),
+          return TextButton.icon(
+            onPressed: () => iec.export(model),
+            icon: const Icon(
+              FontAwesomeIcons.forward,
+              size: 18,
+            ),
             label: const Text('Export'),
           );
         },

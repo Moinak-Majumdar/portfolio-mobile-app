@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -95,12 +97,13 @@ class _AddPhotographyState extends State<AddPhotography> {
   }
 
   void handelMongoUpload() async {
-    final dio = Dio();
-
     setState(() {
       _isLoading = true;
       _errorMsg = null;
     });
+
+    final dio = Dio();
+    final imgDimension = await calculateImageDimension(_selectedItem!.url);
 
     final isUsingTestDb = dbc.isUsingTestDb.value;
     dio.post(
@@ -110,6 +113,8 @@ class _AddPhotographyState extends State<AddPhotography> {
         "apiKey": dotenv.env['DB_KEY'],
         "url": _selectedItem!.url,
         "name": _selectedItem!.name,
+        "height": imgDimension.height,
+        "width": imgDimension.width,
       },
     ).then((res) {
       if (res.statusCode == 200) {
@@ -144,5 +149,20 @@ class _AddPhotographyState extends State<AddPhotography> {
         });
       }
     });
+  }
+
+  Future<Size> calculateImageDimension(String url) {
+    Completer<Size> completer = Completer();
+    final networkImg = Image.network(url);
+    networkImg.image.resolve(const ImageConfiguration()).addListener(
+      ImageStreamListener(
+        (ImageInfo image, bool synchronousCall) {
+          var myImage = image.image;
+          Size size = Size(myImage.width.toDouble(), myImage.height.toDouble());
+          completer.complete(size);
+        },
+      ),
+    );
+    return completer.future;
   }
 }

@@ -4,10 +4,12 @@ class PhotographyModel {
     required this.url,
     required this.name,
     required this.v,
+    required this.height,
+    required this.width,
   });
 
   final String id, url, name;
-  final int v;
+  final int v, height, width;
 }
 
 class PhotographyServerModel {
@@ -23,6 +25,8 @@ class PhotographyServerModel {
           url: elm['url'],
           name: elm['name'],
           v: elm['__v'],
+          height: elm['height'],
+          width: elm['width'],
         ),
       );
     }

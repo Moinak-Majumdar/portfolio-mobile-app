@@ -95,23 +95,45 @@ class NeuListTile extends StatelessWidget {
     this.leading,
     this.trailing,
     this.onTap,
+    this.highlight = false,
   });
 
   final Widget? title, subtitle, leading, trailing;
   final void Function()? onTap;
+  final bool highlight;
 
   @override
   Widget build(BuildContext context) {
     return NeuBox(
       padding: const EdgeInsets.symmetric(vertical: 4),
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      child: ListTile(
-        title: title,
-        subtitle: subtitle,
-        leading: leading,
-        trailing: trailing,
-        onTap: onTap,
-      ),
+      child: highlight
+          ? Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 4,
+                  ),
+                ),
+              ),
+              child: ListTile(
+                title: title,
+                subtitle: subtitle,
+                leading: leading,
+                trailing: trailing,
+                onTap: onTap,
+                shape: const Border(left: BorderSide(width: 4)),
+              ),
+            )
+          : ListTile(
+              title: title,
+              subtitle: subtitle,
+              leading: leading,
+              trailing: trailing,
+              onTap: onTap,
+              shape: const Border(left: BorderSide(width: 8)),
+            ),
     );
   }
 }
