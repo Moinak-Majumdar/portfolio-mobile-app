@@ -16,11 +16,6 @@ class FbStorageItems extends StatelessWidget {
 
   @override
   Widget build(context) {
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    final iec = Get.put(ImportExportController());
-
     return Scaffold(
       appBar: AppBar(
         title: Text(root),
@@ -37,58 +32,9 @@ class FbStorageItems extends StatelessWidget {
                 return ListView.builder(
                   itemCount: data!.length,
                   itemBuilder: (context, index) {
-                    final currentItem = data[index];
-                    final model = root == 'photography'
-                        ? ImportExport.photography(
-                            name: currentItem.imgName,
-                            url: currentItem.url,
-                          )
-                        : ImportExport.projectImage(
-                            name: currentItem.imgName,
-                            url: currentItem.url,
-                            projectName: currentItem.projectName,
-                          );
-                    final alreadyExported = iec.alreadyExported(model);
+                    final item = data[index];
 
-                    return NeuListTile(
-                      title: Text(currentItem.imgName,
-                          style: textTheme.titleMedium),
-                      subtitle: Text(
-                        '${currentItem.url.substring(81, 120)} ...',
-                        style: textTheme.bodySmall!.copyWith(
-                          color: Colors.white54,
-                        ),
-                      ),
-                      trailing: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: CachedNetworkImage(
-                          imageUrl: currentItem.url,
-                          fit: BoxFit.cover,
-                          errorWidget: (context, url, error) => const Icon(
-                            Icons.error_outline_rounded,
-                            size: 32,
-                            color: Colors.red,
-                          ),
-                          placeholder: (context, url) => const Icon(
-                            Icons.loop,
-                            size: 32,
-                            color: Colors.white12,
-                          ),
-                        ),
-                      ),
-                      highlight: alreadyExported,
-                      onTap: alreadyExported
-                          ? null
-                          : () => showDialog(
-                                context: context,
-                                builder: (context) => exportDialog(
-                                  model: model,
-                                  root: root,
-                                  textTheme: textTheme,
-                                  colorScheme: colorScheme,
-                                ),
-                              ),
-                    );
+                    return _ItemCard(item: item, root: root);
                   },
                 );
               }
@@ -108,41 +54,100 @@ class FbStorageItems extends StatelessWidget {
   }
 }
 
-Widget exportDialog({
-  required ImportExport model,
-  required String root,
-  required TextTheme textTheme,
-  required ColorScheme colorScheme,
-}) {
-  return CupertinoAlertDialog(
-    title: Text(
-      model.name,
-      style: textTheme.titleLarge!.copyWith(color: colorScheme.primary),
-      textAlign: TextAlign.start,
-    ),
-    content: Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: Text(
-        'Export url : ${model.url.substring(81, 120)} ...',
-        style: const TextStyle(color: Colors.white70),
-        textAlign: TextAlign.start,
-      ),
-    ),
-    actions: [
-      Obx(
-        () {
-          final iec = Get.put(ImportExportController());
+class _ItemCard extends StatelessWidget {
+  const _ItemCard({required this.item, required this.root});
+  final FbStorageItemModel item;
+  final String root;
 
-          return TextButton.icon(
-            onPressed: () => iec.export(model),
-            icon: const Icon(
-              FontAwesomeIcons.forward,
-              size: 18,
-            ),
-            label: const Text('Export'),
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+    final iec = Get.put(ImportExportController());
+
+    final model = root == 'photography'
+        ? ImportExport.photography(
+            name: item.imgName,
+            url: item.url,
+          )
+        : ImportExport.projectImage(
+            name: item.imgName,
+            url: item.url,
+            projectName: item.projectName,
           );
-        },
-      ),
-    ],
-  );
+
+    return Obx(
+      () {
+        final alreadyExported = iec.alreadyExported(model);
+
+        return NeuListTile(
+          title: Text(item.imgName, style: textTheme.titleMedium),
+          subtitle: Text(
+            '${item.url.substring(81, 120)} ...',
+            style: textTheme.bodySmall!.copyWith(
+              color: Colors.white54,
+            ),
+          ),
+          trailing: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: CachedNetworkImage(
+              imageUrl: item.url,
+              fit: BoxFit.cover,
+              errorWidget: (context, url, error) => const Icon(
+                Icons.error_outline_rounded,
+                size: 32,
+                color: Colors.red,
+              ),
+              placeholder: (context, url) => const Icon(
+                Icons.loop,
+                size: 32,
+                color: Colors.white12,
+              ),
+            ),
+          ),
+          highlight: alreadyExported,
+          onTap: alreadyExported
+              ? null
+              : () => showDialog(
+                    context: context,
+                    builder: (context) => CupertinoAlertDialog(
+                      title: Text(
+                        model.name,
+                        style: textTheme.titleLarge!
+                            .copyWith(color: colorScheme.primary),
+                        textAlign: TextAlign.start,
+                      ),
+                      content: Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Text(
+                          'Export url : ${model.url.substring(81, 120)} ...',
+                          style: const TextStyle(color: Colors.white70),
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      actions: [
+                        Obx(
+                          () {
+                            final iec = Get.put(ImportExportController());
+
+                            return TextButton.icon(
+                              onPressed: () {
+                                iec.export(model);
+                                Navigator.pop(context);
+                              },
+                              icon: const Icon(
+                                FontAwesomeIcons.forward,
+                                size: 18,
+                              ),
+                              label: const Text('Export'),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+        );
+      },
+    );
+  }
 }
