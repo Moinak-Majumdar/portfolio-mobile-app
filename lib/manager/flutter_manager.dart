@@ -21,45 +21,37 @@ List<String> badgeNameToBadge({required List<String> badgeNames}) {
 const _boxName = "flutter-cache";
 const _boxId = "saved-data";
 
-Future<void> saveFlutterData({
+Future<bool> saveFlutterData({
   required BuildContext context,
-  void Function()? onPageLeave,
   required FlutterProjectModel data,
 }) async {
-  if (onPageLeave != null) {
-    await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text(
-          "Save current progress before exit.",
-          style: TextStyle(fontSize: 18),
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              _hiveSave(data);
-              onPageLeave();
-              Navigator.pop(context);
-            },
-            child: const Text("Save"),
-          ),
-          OutlinedButton(
-            onPressed: () {
-              onPageLeave();
-              Navigator.pop(context);
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.redAccent,
-              side: const BorderSide(color: Colors.redAccent),
-            ),
-            child: const Text("Don't save"),
-          ),
-        ],
+  return await showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text(
+        "Save current progress before exit.",
+        style: TextStyle(fontSize: 18),
       ),
-    );
-  } else {
-    await _hiveSave(data);
-  }
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            _hiveSave(data).then((value) => Navigator.pop(context, true));
+          },
+          child: const Text("Save"),
+        ),
+        OutlinedButton(
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.redAccent,
+            side: const BorderSide(color: Colors.redAccent),
+          ),
+          child: const Text("Don't save"),
+        ),
+      ],
+    ),
+  );
 }
 
 Future<FlutterProjectModel> getFlutterDataFromMemory() async {

@@ -54,13 +54,14 @@ class _AddFlutterState extends State<AddFlutter> {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
-    return WillPopScope(
-      onWillPop: () async {
-        bool willLeave = false;
-        await _handelSave(onPageLeave: () {
-          willLeave = true;
-        });
-        return willLeave;
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPopped) async {
+        final shouldPopped = await _handelSave();
+
+        if (context.mounted && shouldPopped) {
+          Navigator.pop(context);
+        }
       },
       child: Scaffold(
         appBar: AppBar(
@@ -284,7 +285,7 @@ class _AddFlutterState extends State<AddFlutter> {
     );
   }
 
-  Future<void> _handelSave({void Function()? onPageLeave}) async {
+  Future<bool> _handelSave() async {
     final status = statusSwitch ? "completed" : "under development";
     final String slug = name.text.toLowerCase().replaceAll(' ', '');
     final cover = selectedCoverImg ??
@@ -294,9 +295,8 @@ class _AddFlutterState extends State<AddFlutter> {
           url: "",
         );
     final badge = flutter_manager.badgeNameToBadge(badgeNames: badgeNames);
-    await flutter_manager.saveFlutterData(
+    return await flutter_manager.saveFlutterData(
       context: context,
-      onPageLeave: onPageLeave,
       data: FlutterProjectModel(
         id: "",
         cover: cover,

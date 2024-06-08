@@ -17,7 +17,7 @@ Future<TailwindPlayModel> getTailwindPlay(String token) async {
   try {
     final res = await dio.post(
       '${dotenv.env['SERVER']!}/getTailwindPlay',
-      queryParameters: {"dbAdmin": true},
+      queryParameters: {"dbAdmin": true, "testDb": true},
       data: {"apiKey": dotenv.env['DB_KEY'], "token": token},
     );
     final serverData = TailwindPlayServerModel.fromJson(res.data);
@@ -114,6 +114,7 @@ class _TailwindPlayState extends State<TailwindPlay> {
                 child: TextFormField(
                   controller: _tokenController,
                   maxLength: 8,
+                  textCapitalization: TextCapitalization.characters,
                   decoration: const InputDecoration(
                     label: Text('Token'),
                     hintText: 'A1B2C3D4',

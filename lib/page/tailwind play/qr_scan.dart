@@ -32,15 +32,14 @@ class _QrScanState extends State<QrScan> {
 
   @override
   Widget build(context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPopped) async {
         if (result == null) {
           Navigator.of(context).pop('');
         } else {
           Navigator.of(context).pop(result!.code);
         }
-
-        return false;
       },
       child: Scaffold(
         body: Stack(

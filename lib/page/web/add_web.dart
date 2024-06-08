@@ -56,13 +56,14 @@ class _AddWebState extends State<AddWeb> {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
-    return WillPopScope(
-      onWillPop: () async {
-        bool willLeave = false;
-        await _handelSave(onPageLeave: () {
-          willLeave = true;
-        });
-        return willLeave;
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPopped) async {
+        final shouldPopped = await _handelSave();
+
+        if (context.mounted && shouldPopped) {
+          Navigator.pop(context);
+        }
       },
       child: Scaffold(
         appBar: AppBar(
@@ -334,7 +335,7 @@ class _AddWebState extends State<AddWeb> {
     );
   }
 
-  Future<void> _handelSave({void Function()? onPageLeave}) async {
+  Future<bool> _handelSave() async {
     FocusScope.of(context).unfocus();
     final status = statusSwitch ? "completed" : "under development";
     final String slug = name.text.toLowerCase().replaceAll(' ', '');
@@ -344,9 +345,8 @@ class _AddWebState extends State<AddWeb> {
           projectName: name.text,
           url: "",
         );
-    await web_manager.saveWebData(
+    return await web_manager.saveWebData(
       context: context,
-      onPageLeave: onPageLeave,
       data: WebProjectModel(
         id: "",
         cover: cover,
