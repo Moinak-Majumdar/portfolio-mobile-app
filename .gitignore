@@ -18,6 +18,7 @@ migrate_working_dir/
 
 .env
 *.env
+firebase.json
 
 /android/app/google-services.json
 /ios/firebase_app_id_file.json

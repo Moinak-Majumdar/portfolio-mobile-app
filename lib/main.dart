@@ -1,5 +1,7 @@
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -25,6 +27,12 @@ void main() async {
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.debug,
   );
+  FirebaseAnalytics.instance;
+
+  final fcm = FirebaseMessaging.instance;
+  await fcm.requestPermission();
+  await fcm.subscribeToTopic("Email");
+
   await Hive.initFlutter();
   Hive.registerAdapter(HiveUserDataAdapter());
   Hive.registerAdapter(HiveUserPlaylistAdapter());
@@ -54,7 +62,6 @@ class MyApp extends StatelessWidget {
 
 ThemeData _getThemeData() {
   return ThemeData().copyWith(
-    useMaterial3: true,
     colorScheme: ColorScheme.fromSeed(
       seedColor: const Color.fromARGB(255, 91, 33, 182),
       brightness: Brightness.dark,

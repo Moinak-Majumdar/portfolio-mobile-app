@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:portfolio/firebase/fb_storage.dart';
 import 'package:portfolio/firebase/fb_upload.dart';
+import 'package:portfolio/page/email/page.dart';
 import 'package:portfolio/page/flutter/page.dart';
 import 'package:portfolio/page/tailwind%20play/page.dart';
 import 'package:portfolio/page/photography/page.dart';
@@ -62,6 +63,15 @@ const List<Map<String, dynamic>> navItems = [
     ),
     "title": "Firebase Upload",
     "page": FbUpload(),
+  },
+  {
+    "icon": Icon(
+      FontAwesomeIcons.envelopesBulk,
+      size: 30,
+      color: Colors.red,
+    ),
+    "title": "Client emails",
+    "page": Email(),
   },
   {
     "icon": Icon(
