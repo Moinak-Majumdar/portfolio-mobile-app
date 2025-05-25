@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:portfolio/controller/db.dart';
 import 'package:portfolio/controller/music.dart';
 import 'package:portfolio/controller/profile_img.dart';
 import 'package:portfolio/widget/neumorphism.dart';
 import 'package:portfolio/widget/profile_img_changer.dart';
+import 'package:portfolio/widget/website_status_changer.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -107,6 +107,7 @@ class Settings extends StatelessWidget {
                     ),
                   ),
                 ),
+                const WebsiteStatusChanger(),
               ],
             );
           },

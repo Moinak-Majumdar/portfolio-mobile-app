@@ -35,7 +35,10 @@ class Email extends StatelessWidget {
                   children: snapShot.data!.docs.map(
                     (DocumentSnapshot doc) {
                       final data = doc.data()! as Map<String, dynamic>;
-                      final dateTime = getVisibleDate(data['time']);
+                      print(data);
+                      final time = data['time'] is Timestamp
+                          ? formatTimestamp(data['time'])
+                          : data['time'];
 
                       return NeuBox(
                         margin: const EdgeInsets.all(14),
@@ -50,6 +53,7 @@ class Email extends StatelessWidget {
                                     text: 'Name: ',
                                     style: TextStyle(
                                       color: colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   TextSpan(
@@ -66,6 +70,7 @@ class Email extends StatelessWidget {
                                     text: 'From: ',
                                     style: TextStyle(
                                       color: colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   TextSpan(
@@ -75,8 +80,10 @@ class Email extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              dateTime,
-                              style: textTheme.titleSmall,
+                              time,
+                              style: textTheme.titleSmall!.copyWith(
+                                color: colorScheme.primary,
+                              ),
                             ),
                             const SizedBox(height: 12),
                             Text(
@@ -140,27 +147,44 @@ class Email extends StatelessWidget {
     await launchUrl(url);
   }
 
-  String getVisibleDate(Timestamp timeStamp) {
-    final months = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DEC',
-    ];
-    final d = timeStamp.toDate();
-    final t = TimeOfDay.fromDateTime(d);
-    final time =
-        "${t.hourOfPeriod}:${t.minute}${t.hourOfPeriod >= 12 ? 'PM' : 'AM'}";
-    final date = "${d.day}, ${months[d.month]} ${d.year}";
+  String formatTimestamp(Timestamp timestamp) {
+    DateTime dateTime = timestamp.toDate();
+    String getOrdinalSuffix(int day) {
+      if (day >= 11 && day <= 13) return "th";
+      switch (day % 10) {
+        case 1:
+          return "st";
+        case 2:
+          return "nd";
+        case 3:
+          return "rd";
+        default:
+          return "th";
+      }
+    }
 
-    return "$date : $time";
+    const List<String> months = [
+      "JAN",
+      "FEB",
+      "MAR",
+      "APR",
+      "MAY",
+      "JUN",
+      "JUL",
+      "AUG",
+      "SEP",
+      "OCT",
+      "NOV",
+      "DEC"
+    ];
+
+    String dayWithSuffix = "${dateTime.day}${getOrdinalSuffix(dateTime.day)}";
+    String month = months[dateTime.month - 1];
+    String year = dateTime.year.toString();
+    int hour = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
+    String minute = dateTime.minute.toString().padLeft(2, '0');
+    String period = dateTime.hour >= 12 ? "PM" : "AM";
+
+    return "$dayWithSuffix $month, $year - $hour:$minute $period";
   }
 }
